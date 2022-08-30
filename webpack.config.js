@@ -5,7 +5,7 @@ module.exports = {
     entry: './src/index.js',
     devtool: 'inline-source-map',
 
-    output: {
+    output: { 
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
     },
@@ -18,7 +18,7 @@ module.exports = {
         {
             test: /\.(woff|woff2|eot|ttf|otf)$/i,
             type: 'asset/resource',
-        },
+        }, 
         ],
     },
 };

@@ -3,24 +3,125 @@
     padding: 0;
 }
 
+:root{
+    --padding: 1rem;
+    --gap: 1rem;
+
+    --iconSize: 1rem;
+    --iconMargin: .2rem;
+}
+
 .container {
     display: grid;
     grid-template-columns: 1fr 3fr 1fr;
-    grid-template-rows: 1fr 4fr;
+    grid-template-rows: 1fr 5fr;
 
     height: 100vh;
 }
 
-.sideBar{
+.sideBar {
     display: flex;
     flex-direction: column;
-        
+    row-gap: var(--gap);
+    padding: var(--padding);
+}
+
+.projects {
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--gap);
+}
+
+.projects button {
+    padding-left: var(--gap)*2;
+    padding-right: var(--gap)*2;
+}
+
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 header {
     grid-column: 1/end;
 }
 
-.container, .sideBar, .display, .newItemBar{
+.display {
+    padding: var(--padding);
+    column-gap: var(--gap);
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    overflow-y: auto;
+}
+
+.projectTile {
+    width: 1fr;
+    height: 10rem;
+    max-height: 30rem;
+    overflow-y: auto;
+}
+
+ul{
+    /* margin-left: var(--padding); */
+    /* list-style-image: url("icons/checkbox-blank-circle-outline.svg"); */
+    font-size: 1.3rem;
+}
+
+li {
+    list-style: none;
+} 
+
+li.unfinished::before {
+    content: '';
+    display: inline-block;
+    height: var(--iconSize);
+    width: var(--iconSize);
+    background-image: url("icons/checkbox-blank-circle-outline.svg");
+    margin-right: var(--iconMargin);
+    margin-left: var(--iconMargin);
+}
+
+li.finished::before {
+    content: '';
+    display: inline-block;
+    height: var(--iconSize);
+    width: var(--iconSize);
+    background-image: url("icons/checkbox-blank-circle.svg");
+    margin-right: var(--iconMargin);
+    margin-left: var(--iconMargin);
+}
+
+#project3, #project6{
+    height: 20rem;
+}
+
+.newItemBar {
+    display: flex;
+    justify-content: center;
+    padding: var(--padding);
+}
+
+.newItem {
+    display: grid;
+    row-gap: var(--gap);
+
+    padding: var(--padding);
+
+    height: 60%;
+    width: 100%;
+}
+
+.newItem button {
+    /* align-self: flex-end; */
+
+}
+
+#itemDescription {
+    resize: none;
+}
+
+.container, .sideBar, .display, .newItemBar, .newItem, .projectTile, .projectHeader{
     border: 2px solid black;
 }
