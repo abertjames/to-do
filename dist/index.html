@@ -1,74 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css" />
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>To-Do</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"><script defer src="main.js"></script>
+  <link rel="stylesheet" href="style.css" />
 
-    <title>to-do</title>
 </head>
-<body>
-    <div class="container">
-        <header class="header">To-Do List</header>
-
-        <div class="sideBar">
-            <button>Home</button>
-            <button>Today</button>
-            <button>This Week</button>
-            <div class="projects">
-                <span>Projects</span>
-                <button>Project 1</button>
-                <button>Project 2</button>
-
-            </div>
-            
-        </div>
-        <div class="display">
-            <div class="projectTile" id="project1">
-                <!-- project header should equal the project id -->
-                <h3 class="projectHeader">Project 1</h3>
-                <ul>
-                    <li class="finished">One</li>
-                    <li class="unfinished">Two</li>
-                    <li class="unfinished">Three</li>
-                    <li class="unfinished">Four</li>
-                    <li class="unfinished">Five</li>
-                </ul>
-            </div>
-            <div class="projectTile" id="project2">
-                <h3 class="projectHeader">Project 2</h3>
-                <input type="checkbox" name="item1" id="item1">
-                <label for="item1">groceries</label>
-            </div>
-            <div class="projectTile" id="project3"></div>
-            <div class="projectTile" id="project4"></div>
-            <div class="projectTile" id="project5"></div>
-            <div class="projectTile" id="project6"></div>
-
-        </div>
-        <div class="newItemBar">
-            <div class="newItem">
-                <p>Add New Item</p>
-
-                <!-- <label for="itemTitle">Item</label> -->
-                <input type="text" name="itemTitle" id="itemTitle" placeholder="Title">
-
-                <!-- <label for="projectTitle">Project</label> -->
-                <input type="text" name="projectTitle" id="projectTitle" placeholder="Project">
-
-                <input type="date" name="itemDate" id="itemDate">
-                
-                <!-- <label for="itemDescription">Description</label> -->
-                <!-- <input type="text" name="itemDescription" id="itemDescription" placeholder="Description"> -->
-                <textarea name="itemDescription" id="itemDescription" cols="30" rows="10"  placeholder="Description"></textarea>
-
-
-                <button>Add Item</button>
-                <button>Clear</button>
-            </div>
-        </div>
-
-    </div>
-</body>
+  <body>
+      <div id="container"></div>
+  </body>
 </html>

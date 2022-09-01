@@ -11,7 +11,7 @@
     --iconMargin: .2rem;
 }
 
-.container {
+#container {
     display: grid;
     grid-template-columns: 1fr 3fr 1fr;
     grid-template-rows: 1fr 5fr;
@@ -26,13 +26,13 @@
     padding: var(--padding);
 }
 
-.projects {
+#projectArea {
     display: flex;
     flex-direction: column;
     row-gap: var(--gap);
 }
 
-.projects button {
+#projectArea button {
     padding-left: var(--gap)*2;
     padding-right: var(--gap)*2;
 }
@@ -47,7 +47,7 @@ header {
     grid-column: 1/end;
 }
 
-.display {
+#displayArea {
     padding: var(--padding);
     column-gap: var(--gap);
     display: grid;
@@ -103,7 +103,7 @@ li.finished::before {
     padding: var(--padding);
 }
 
-.newItem {
+.newItemForm {
     display: grid;
     row-gap: var(--gap);
 
@@ -113,7 +113,7 @@ li.finished::before {
     width: 100%;
 }
 
-.newItem button {
+.newItemForm button {
     /* align-self: flex-end; */
 
 }
@@ -122,6 +122,6 @@ li.finished::before {
     resize: none;
 }
 
-.container, .sideBar, .display, .newItemBar, .newItem, .projectTile, .projectHeader{
+#container, .sideBar, #displayArea, .newItemBar, .newItemForm, .projectTile, .projectHeader{
     border: 2px solid black;
 }
