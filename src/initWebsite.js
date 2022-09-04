@@ -1,6 +1,6 @@
 import {createHeader} from "./header";
-import createSideBar from "./sideBar";
-import createDisplayArea from "./display";
+import {createSideBar} from "./sideBar";
+import {createDisplayArea} from "./display";
 import createInputBar from "./input";
 
 

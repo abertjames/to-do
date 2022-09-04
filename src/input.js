@@ -1,65 +1,74 @@
+import {updateProjectArea} from "./sideBar";
+
 class Item {
     constructor(
         itemTitle = "unknown",
-        itemProject = "unknown",
+        projectTitle = "unknown",
         itemDueDate = "unknown",
         itemDescription = "unknown"
     ){
         this.itemTitle = itemTitle
-        this.itemProject = itemProject
+        this.projectTitle = projectTitle
         this.itemDueDate = itemDueDate
         this.itemDescription = itemDescription
     }
 }
 
-// class Project {
-//     constructor(){
-//         this.itmes = [];
-//     }
-//     addItem(newItem) {
-//         if (!this.isInProject(newItem)) {
-//         this.items.push(newItem)
-//         }
-//     }
-  
-//     removeItem(itemTitle) {
-//         this.items = this.items.filter((item) => item.itemTitle !== itemTitle)
-//     }
-  
-//     getItem(itemTitle) {
-//         return this.items.find((item) => item.itemTitle === itemTitle)
-//     }
-  
-//     isInProject(newItem) {
-//         return this.items.some((item) => item.itemTitle === newItem.itemTitle)
-//     }
-// }
+class Project {
+    constructor(        
+        projectTitle = 'unknown'
+    ){
+        this.items = [];
+        this.projectTitle = projectTitle;
+    }
+    addItem(newItem) {
+        if (!this.isInProject(newItem)) {
+            // might not even want to check if another item by the same name exist because you could want
+            // to do the same task multiple times 
+        this.items.push(newItem)
+        }
+        // this.items.push(newItem)
 
-// class projectLibrary {
-//     constructor() {
-//         this.projects = []
-//     }
+    }
   
-//     addProject(newProject) {
-//         if (!this.isInProjectLibrary(newProject)) {
-//         this.projects.push(newProjet)
-//         }
-//     }
+    removeItem(itemTitle) {
+        this.items = this.items.filter((item) => item.itemTitle !== itemTitle)
+    }
   
-//     removeProject(projectTitle) {
-//         this.projects = this.projects.filter((project) => project.projectTitle !== projectTitle)
-//     }
+    getItem(itemTitle) {
+        return this.items.find((item) => item.itemTitle === itemTitle)
+    }
   
-//     getProject(projectTitle) {
-//         return this.projects.find((project) => project.projectTitle === projectTitle)
-//     }
-  
-//     isInProjectLibrary(newProject) {
-//         return this.projects.some((project) => project.projectTitle === newProject.projectTitle)
-//     }
-// }
+    isInProject(newItem) {
+        return this.items.some((item) => item.itemTitle === newItem.itemTitle)
+    }
+}
 
-// const projectLibrary = new projectLibrary()
+class ProjectLibrary {
+    constructor() {
+        this.projects = []
+    }
+  
+    addProject(newProject) {
+        if (!this.isInProjectLibrary(newProject)) {
+        this.projects.push(newProject)
+        }
+    }
+  
+    removeProject(projectTitle) {
+        this.projects = this.projects.filter((project) => project.projectTitle !== projectTitle)
+    }
+  
+    getProject(projectTitle) {
+        return this.projects.find((project) => project.projectTitle === projectTitle)
+    }
+  
+    isInProjectLibrary(projectTitle) {
+        return this.projects.some((project) => project.projectTitle === projectTitle)
+    }
+}
+
+const projectLibrary = new ProjectLibrary()
 
 const createInputBar = () => {
     const newItemBar = document.createElement('div');
@@ -112,41 +121,59 @@ const descriptionInput = () => {
 const createAddButton = () => {
     const addButton = document.createElement('button');
     addButton.textContent = 'Add Item';
-    // addButton.type = 'submit';
-    addButton.addEventListener('click', () => {
-        createItemFromInput();
-    })
+    addButton.type = 'submit';
     return addButton
 }
 
-const createItemFromInput = (e) => {
-    // e.preventDefault();
+const createItemFromInput = () => {
 
-    // const itemTitle = document.getElementById('itemTitle').value;
-    // const projectTitle = document.getElementById('projectTitle').value.toLowerCase();
-    // const dueDate = document.getElementById('dueDate').value;
-    // const itemDescription = document.getElementById('itemDescription').value;
+    const itemTitle = document.getElementById('itemTitle').value;
+    const projectTitle = document.getElementById('projectTitle').value.toUpperCase();
+    const dueDate = document.getElementById('dueDate').value;
+    const itemDescription = document.getElementById('itemDescription').value;
 
-    console.log('hello')
+    inputForm.reset();
 
-    // return new Item(itemTitle, projectTitle, dueDate, itemDescription)
+    return new Item(itemTitle, projectTitle, dueDate, itemDescription)
+}
+
+const addItem = (e) => {
+    e.preventDefault();
+
+    const newItem = createItemFromInput();
+
+    if (newItem.itemTitle == '' || newItem.projectTitle == '') {
+        return
+    } else if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
+        projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
+        console.log(projectLibrary)
+    } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
+        const project = new Project(newItem.projectTitle);
+        project.addItem(newItem);
+        projectLibrary.addProject(project);
+        updateProjectArea(project.projectTitle);
+        console.log(projectLibrary)
+    }
 }
 
 const createClearButton = () => {
     const clearButton = document.createElement('button');
     clearButton.textContent = 'Clear';
-    clearButton.addEventListener('click', () => {
-        console.log('hello')
+    clearButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        // console.log('hello')
+        inputForm.reset();
     })
 
     return clearButton
 }
 
 const createInputForm = () => {
-    const inputForm = document.createElement('div');
+    const inputForm = document.createElement('form');
     inputForm.classList.add('newItemForm');
-    // inputForm.onSubmit = createItemFromInput(event);
-    // inputForm.onSubmit = console.log('hello');
+    inputForm.setAttribute('id','inputForm');
+    // inputForm.onsubmit = createItemFromInput;
+    inputForm.onsubmit = addItem;
 
 
     const newItemHeader = document.createElement('p');
@@ -160,6 +187,7 @@ const createInputForm = () => {
     inputForm.appendChild(descriptionInput());
     inputForm.appendChild(createAddButton());
     inputForm.appendChild(createClearButton());
+
     return inputForm
 }
 

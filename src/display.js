@@ -5,26 +5,26 @@ const createDisplayArea = () => {
     return displayArea
 }
 
-// const updateDisplayArea = (newProject) => {
-//     const displayArea = document.getElementById('displayArea');
+const updateDisplayArea = (newProject) => {
+    const displayArea = document.getElementById('displayArea');
 
-//     const projectTile = document.createElement('div');
-//     projectTile.classList.add('projectTile');
+    const projectTile = document.createElement('div');
+    projectTile.classList.add('projectTile');
 
-//     const projectHeader = document.createElement('h3');
-//     // projectHeader.textContent = newProject.
+    const projectHeader = document.createElement('h3');
+    // projectHeader.textContent = newProject.
 
-//     projectTile.appendChild(projectHeader);
-//     displayArea.appendChild(projectTile);
+    projectTile.appendChild(projectHeader);
+    displayArea.appendChild(projectTile);
 
-//     return displayArea
-// }
+    return displayArea
+}
 
-// const createProjectTile = () => {
-//     const projectTile = document.createElement('div');
-//     projectTile.setAttribute('id', 'projectTile');
+const createProjectTile = () => {
+    const projectTile = document.createElement('div');
+    projectTile.setAttribute('id', 'projectTile');
     
-//     return projectTile
-// }
+    return projectTile
+}
 
-export default createDisplayArea
+export {createDisplayArea}

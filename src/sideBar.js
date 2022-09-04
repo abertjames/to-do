@@ -28,16 +28,15 @@ const createProjectArea = () => {
     return projectArea
 }
 
-// const updateProjectArea = (projTitle) => {
-//     const projectArea = document.getElementById('projectArea');
+const updateProjectArea = (projTitle) => {
+    const projectArea = document.getElementById('projectArea');
 
-//     const newProjectButton = document.createElement('button');
-//     newProjectButton.textContent = projTitle;
+    const newProjectButton = document.createElement('button');
+    newProjectButton.textContent = projTitle;
 
-//     projectArea.appendChild(newProjectButton);
-//     return projectArea
-// }
+    projectArea.appendChild(newProjectButton);
+    return projectArea
+}
 
-// export {createSideBar, updateProjectArea};
 
-export default createSideBar
+export {createSideBar, updateProjectArea}
