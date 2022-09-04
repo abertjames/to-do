@@ -1,4 +1,5 @@
 import {updateProjectArea} from "./sideBar";
+import {updateDisplayArea} from "./display"
 
 class Item {
     constructor(
@@ -146,13 +147,17 @@ const addItem = (e) => {
         return
     } else if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
         projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
-        console.log(projectLibrary)
+        // updateProjectTile(projectLibrary.getProject(newItem.projectTitle));
+        updateDisplayArea(projectLibrary.projects);
+
+        // console.log(projectLibrary)
     } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
         const project = new Project(newItem.projectTitle);
         project.addItem(newItem);
         projectLibrary.addProject(project);
         updateProjectArea(project.projectTitle);
-        console.log(projectLibrary)
+        updateDisplayArea(projectLibrary.projects);
+        // console.log(projectLibrary)
     }
 }
 

@@ -28,6 +28,7 @@ const createProjectArea = () => {
     return projectArea
 }
 
+// will need to change this to update like the display area for when things are deleted 
 const updateProjectArea = (projTitle) => {
     const projectArea = document.getElementById('projectArea');
 
