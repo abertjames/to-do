@@ -18,24 +18,36 @@ const createSideBar = () => {
 }
 
 const createProjectArea = () => {
+    const projectAreaContainer = document.createElement('div');
+
     const projectArea = document.createElement('div');
     projectArea.setAttribute('id','projectArea');
+
     const projectHeading = document.createElement('span');
     projectHeading.textContent = 'Projects';
 
-    projectArea.appendChild(projectHeading);
+    projectAreaContainer.appendChild(projectHeading);
+    projectAreaContainer.appendChild(projectArea);
 
-    return projectArea
+    return projectAreaContainer
 }
 
-// will need to change this to update like the display area for when things are deleted 
-const updateProjectArea = (projTitle) => {
+const resetProjectArea = () => {
+    const projectArea = document.getElementById('projectArea');
+    projectArea.innerHTML = '';
+}
+
+// maybe make this an un ordered list 
+const updateProjectArea = (projectLibrary) => {
+    resetProjectArea();
     const projectArea = document.getElementById('projectArea');
 
-    const newProjectButton = document.createElement('button');
-    newProjectButton.textContent = projTitle;
-
-    projectArea.appendChild(newProjectButton);
+    for (let project of projectLibrary){
+        const newProjectButton = document.createElement('button');
+        newProjectButton.textContent = project.projectTitle;
+        projectArea.appendChild(newProjectButton);
+    }
+    
     return projectArea
 }
 

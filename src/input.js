@@ -1,17 +1,21 @@
 import {updateProjectArea} from "./sideBar";
-import {updateDisplayArea} from "./display"
+import {addToDisplayArea, addToProjectTile} from "./display"
 
 class Item {
     constructor(
         itemTitle = "unknown",
         projectTitle = "unknown",
         itemDueDate = "unknown",
-        itemDescription = "unknown"
+        itemDescription = "unknown",
+        itemCompletion = 'unknown',
+        itemID = 'unknown'
     ){
         this.itemTitle = itemTitle
         this.projectTitle = projectTitle
         this.itemDueDate = itemDueDate
         this.itemDescription = itemDescription
+        this.itemCompletion = itemCompletion
+        this.itemID = itemID
     }
 }
 
@@ -29,7 +33,6 @@ class Project {
         this.items.push(newItem)
         }
         // this.items.push(newItem)
-
     }
   
     removeItem(itemTitle) {
@@ -135,8 +138,15 @@ const createItemFromInput = () => {
 
     inputForm.reset();
 
-    return new Item(itemTitle, projectTitle, dueDate, itemDescription)
+    return new Item(itemTitle, projectTitle, dueDate, itemDescription, false, 'unknown')
 }
+
+// const getItemID = (projectTitle) => {
+//     itemID = `${projectTitle}`+`-${projectLibrary.getProject(projectTitle).items.length}`;
+//     console.log(newItem.itemID);
+//     console.log(`${projectTitle}`+`-${projectLibrary.getProject(projectTitle).items.length}`);
+//     return itemID
+// }
 
 const addItem = (e) => {
     e.preventDefault();
@@ -146,18 +156,20 @@ const addItem = (e) => {
     if (newItem.itemTitle == '' || newItem.projectTitle == '') {
         return
     } else if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
+        newItem.itemID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).items.length}`;
         projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
-        // updateProjectTile(projectLibrary.getProject(newItem.projectTitle));
-        updateDisplayArea(projectLibrary.projects);
+        addToProjectTile(newItem);
 
-        // console.log(projectLibrary)
     } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
         const project = new Project(newItem.projectTitle);
-        project.addItem(newItem);
         projectLibrary.addProject(project);
-        updateProjectArea(project.projectTitle);
-        updateDisplayArea(projectLibrary.projects);
-        // console.log(projectLibrary)
+        newItem.itemID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).items.length}`;
+        project.addItem(newItem)
+        
+        addToDisplayArea(project);
+        addToProjectTile(newItem);
+        //change this too
+        updateProjectArea(projectLibrary.projects);
     }
 }
 
@@ -166,10 +178,8 @@ const createClearButton = () => {
     clearButton.textContent = 'Clear';
     clearButton.addEventListener('click', (e) => {
         e.preventDefault();
-        // console.log('hello')
         inputForm.reset();
     })
-
     return clearButton
 }
 
@@ -177,9 +187,7 @@ const createInputForm = () => {
     const inputForm = document.createElement('form');
     inputForm.classList.add('newItemForm');
     inputForm.setAttribute('id','inputForm');
-    // inputForm.onsubmit = createItemFromInput;
     inputForm.onsubmit = addItem;
-
 
     const newItemHeader = document.createElement('p');
     newItemHeader.textContent = 'Add New Item'
