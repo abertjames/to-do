@@ -1,9 +1,17 @@
+import { manageVerboseProject, manageDisplayArea } from "./display";
+import { projectLibrary } from "./input";
+
 const createSideBar = () => {
     const sideBar = document.createElement('div');
     sideBar.classList.add('sideBar');
 
     const homeButton = document.createElement('button');
     homeButton.textContent = 'Home';
+    homeButton.addEventListener('click', () => {
+        // console.log(projectLibrary)
+        manageDisplayArea.regenerateDisplayArea(projectLibrary);
+    });
+
     const todayButton = document.createElement('button');
     todayButton.textContent = 'Today';
     const weekButton = document.createElement('button');
@@ -32,24 +40,30 @@ const createProjectArea = () => {
     return projectAreaContainer
 }
 
-const resetProjectArea = () => {
-    const projectArea = document.getElementById('projectArea');
-    projectArea.innerHTML = '';
-}
+// const resetProjectArea = () => {
+//     const projectArea = document.getElementById('projectArea');
+//     projectArea.innerHTML = '';
+// }
 
-// maybe make this an un ordered list 
-const updateProjectArea = (projectLibrary) => {
-    resetProjectArea();
+const addProjectButton = (project) => {
     const projectArea = document.getElementById('projectArea');
 
-    for (let project of projectLibrary){
-        const newProjectButton = document.createElement('button');
-        newProjectButton.textContent = project.projectTitle;
-        projectArea.appendChild(newProjectButton);
-    }
-    
-    return projectArea
+    const newProjectButton = document.createElement('button');
+    newProjectButton.setAttribute('id',`${project.projectTitle}`+'-button');
+    newProjectButton.textContent = project.projectTitle;
+
+    newProjectButton.addEventListener('click', (e) => {
+        const project = projectLibrary.getProject(e.target.id.slice(0,-7));
+        manageVerboseProject.openVerboseProject(project);
+    });
+    projectArea.appendChild(newProjectButton);
 }
 
+const removeProjectButton = (project) => {
+    const projectArea = document.getElementById('projectArea');
+    projectArea.removeChild(document.getElementById(`${project.projectTitle}`+ '-button'));
+}
 
-export {createSideBar, updateProjectArea}
+//need a function to rename and re ID these 
+
+export {createSideBar, addProjectButton, removeProjectButton}
