@@ -1,5 +1,5 @@
 import {createHeader} from "./header";
-import {createSideBar} from "./sideBar";
+import {manageSideBar} from "./sideBar";
 import {createDisplayArea} from "./display";
 import {createInput} from "./input";
 
@@ -12,7 +12,7 @@ const initializeWebsite = () => {
     const container = document.getElementById('container');
 
     container.appendChild(createHeader());
-    container.appendChild(createSideBar());
+    container.appendChild(manageSideBar.createSideBar());
     container.appendChild(createDisplayArea());
     container.appendChild(createInput.createInputBar());
 }

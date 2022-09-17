@@ -38,6 +38,7 @@ header {
     flex-direction: column;
     row-gap: var(--gap);
     padding: var(--padding);
+    max-width: 20vw;
 }
 
 #projectArea {
@@ -67,6 +68,7 @@ button {
     grid-template-columns: 1fr 1fr 1fr;
     overflow-y: auto;
     position: relative;
+    max-width: 60vw;
 }
 
 ::-webkit-scrollbar {
@@ -95,6 +97,8 @@ button {
     position: sticky;
     top: 0;
 
+    width: 100%;
+
     background-color: white;
     opacity: 1;
 
@@ -104,28 +108,12 @@ button {
     padding-top: var(--smallGap);
 }
 
-h3 {
-    margin-right: auto;
-}
-
-
-.projectHeader {
-
-}
-
-
 .itemDiv {
     display: flex;
     width: 100%;
-    /* height: 2rem; */
     height: fit-content;
-
     align-items: center;
     column-gap: var(--smallGap);
-}
-
-span, p {
-    margin-right: auto;
 }
 
 .icon {
@@ -153,6 +141,7 @@ span, p {
     display: flex;
     flex-direction: column;
     width: 100%;
+    max-width: 100%;
     height: 100%;
     grid-column: 1/end;
 
@@ -160,46 +149,27 @@ span, p {
     border: 2px solid red;
 }
 
-.verboseProjectTitle, .verboseItemTitle {
+.verbose {
     background-color: transparent;
     border: none;
     outline: none;
-    max-width: 70%;
     min-width: 10%;
     margin-right: auto;
 }
 
-.verboseItemTitle {
-    font-size: 1rem;
-}
-.verboseProjectTitle {
+.overlay .verbose {
     font-size: 2rem;
 }
 
-.verboseHeader {
-    display: flex;
-    align-items: center;
-    position: sticky;
-    top: 0;
-
-    background-color: white;
-    opacity: 1;
-
-    /* font-size: x-large; */
-
-    column-gap: var(--smallGap);
-    border-bottom: 2px solid black;
-    padding-bottom: var(--smallGap);
-    padding-top: var(--smallGap);
+.itemDiv .verbose {
+    font-size: 1.2rem;
 }
 
-.verboseItem {
-    display: flex;
-    width: 100%;
-    height: fit-content;
-
-    align-items: center;
-    column-gap: var(--smallGap);
+.overlay input {
+    max-width: 35rem;
+}
+.projectTile input {
+    max-width: 10rem;
 }
 
 .focused {

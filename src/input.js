@@ -1,16 +1,16 @@
 import {manageDisplayArea} from "./display";
-import {addProjectButton} from "./sideBar";
+import {manageSideBar} from "./sideBar";
 
 class Item {
     constructor(
-        itemTitle = "unknown",
+        title = "unknown",
         projectTitle = "unknown",
         itemDueDate = "unknown",
         itemDescription = "unknown",
         itemCompletion = 'unknown',
         itemID = 'unknown',
     ){
-        this.itemTitle = itemTitle
+        this.title = title
         this.projectTitle = projectTitle
         this.itemDueDate = itemDueDate
         this.itemDescription = itemDescription
@@ -22,11 +22,11 @@ class Item {
 
 class Project {
     constructor(        
-        projectTitle = 'unknown',
+        title = 'unknown',
     ){
         this.items = [];
         this.IDAssigner = -1;
-        this.projectTitle = projectTitle;
+        this.title = title;
         this.type = 'project';
     }
     giveID() {
@@ -54,13 +54,13 @@ class ProjectLibrary {
         }
     }
     removeProject(projectTitle) {
-        this.projects = this.projects.filter((project) => project.projectTitle !== projectTitle)
+        this.projects = this.projects.filter((project) => project.title !== projectTitle)
     }
     getProject(projectTitle) {
-        return this.projects.find((project) => project.projectTitle === projectTitle)
+        return this.projects.find((project) => project.title === projectTitle)
     }
     isInProjectLibrary(projectTitle) {
-        return this.projects.some((project) => project.projectTitle === projectTitle)
+        return this.projects.some((project) => project.title === projectTitle)
     }
 }
 
@@ -115,14 +115,14 @@ const createInput = (() => {
     
     const _createItemFromInput = () => {
     
-        const itemTitle = document.getElementById('itemInput').value;
+        const title = document.getElementById('itemInput').value;
         const projectTitle = document.getElementById('projectInput').value.toUpperCase();
         const dueDate = document.getElementById('dueDate').value;
         const itemDescription = document.getElementById('itemDescription').value;
     
         inputForm.reset();
     
-        return new Item(itemTitle, projectTitle, dueDate, itemDescription, false, 'unknown')
+        return new Item(title, projectTitle, dueDate, itemDescription, false, 'unknown')
     }
     
     const _addItem = (e) => {
@@ -130,22 +130,27 @@ const createInput = (() => {
     
         const newItem = _createItemFromInput();
     
-        if (newItem.itemTitle == '' || newItem.projectTitle == '') {
+        if (newItem.title == '' || newItem.projectTitle == '') {
             return
         } else if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             newItem.itemID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
+            ///
             manageDisplayArea.addToProjectTile(newItem);
+            ///
     
         } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             const project = new Project(newItem.projectTitle);
             projectLibrary.addProject(project);
             newItem.itemID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             project.addItem(newItem);
+
+            ///
             manageDisplayArea.addToDisplayArea(project);
             manageDisplayArea.addToProjectTile(newItem);
+            ///
     
-            addProjectButton(project);
+            manageSideBar.regenerateProjectArea(projectLibrary)
         }
     }
     

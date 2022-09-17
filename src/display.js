@@ -1,5 +1,5 @@
 import {projectLibrary} from "./input";
-import {removeProjectButton} from "./sideBar";
+import {manageSideBar} from "./sideBar";
 
 const createDisplayArea = () => {
     const displayArea = document.createElement('div');
@@ -8,42 +8,45 @@ const createDisplayArea = () => {
     return displayArea
 }
 
+const clearDisplayArea = () => {
+    const displayArea = document.getElementById('displayArea');
+    displayArea.innerHTML = '';
+}
+
 const manageDisplayArea = (() => {
     const addToDisplayArea = (project) => {
         const displayArea = document.getElementById('displayArea');
         displayArea.appendChild(_createProjectTile(project));
     }
     
-    const removeFromDisplayArea = (project) => {
-        const displayArea = document.getElementById('displayArea');
-        displayArea.removeChild(document.getElementById(project.projectTitle));
-    
-        removeProjectButton(project);
-    }
+    // const removeFromDisplayArea = (project) => {
+    //     const displayArea = document.getElementById('displayArea');
+    //     displayArea.removeChild(document.getElementById(project.projectTitle));
+    //     manageSideBar.regenerateProjectArea(projectLibrary)
+    // }
     
     const addToProjectTile = (item) => {
         const projectTile = document.getElementById(item.projectTitle);
         projectTile.appendChild(_createItem(item));
     }
     
-    const removeFromProjectTile = (item) => {
-        const projectTile = document.getElementById(item.projectTitle);
-        projectTile.removeChild(document.getElementById(item.itemID));
+    // const removeFromProjectTile = (item) => {
+    //     const projectTile = document.getElementById(item.projectTitle);
+    //     projectTile.removeChild(document.getElementById(item.itemID));
     
-        if (projectTile.childNodes.length == 1){
-            const project = projectLibrary.getProject(item.projectTitle);
-            removeFromDisplayArea(project);
-        }
-    }
+    //     if (projectTile.childNodes.length == 1){
+    //         const project = projectLibrary.getProject(item.projectTitle);
+    //         removeFromDisplayArea(project);
+    //     }
+    // }
     
     const _createItem = (item) => {
         const listItem = document.createElement('div');
         listItem.classList.add('itemDiv');
         listItem.setAttribute('id', item.itemID);
+
         listItem.appendChild(_createCheckIcon());
-        const itemName = document.createElement('span');
-        itemName.textContent = item.itemTitle;
-        listItem.appendChild(itemName);
+        listItem.appendChild(_createTitle(item));
         listItem.appendChild(_createEditIcon());
         listItem.appendChild(_createTrashIcon('item'));
     
@@ -55,16 +58,12 @@ const manageDisplayArea = (() => {
     
         const projectTile = document.createElement('div');
         projectTile.classList.add('projectTile');
-        projectTile.setAttribute('id', project.projectTitle);
-    
-        const projectHeader = document.createElement('h3');
-        projectHeader.textContent = project.projectTitle;
-    
+        projectTile.setAttribute('id', project.title);
+
         const headerDiv = document.createElement('div');
         headerDiv.classList.add('headerDiv');
-        // headerDiv.classList.add("projectHeader");
-    
-        headerDiv.appendChild(projectHeader);
+
+        headerDiv.appendChild(_createTitle(project));
         headerDiv.appendChild(_createEditIcon());
         headerDiv.appendChild(_createTrashIcon('project'));
     
@@ -83,23 +82,19 @@ const manageDisplayArea = (() => {
         }
     };
 
-    return {addToDisplayArea, addToProjectTile, removeFromDisplayArea, removeFromProjectTile, regenerateDisplayArea}
+    return {addToDisplayArea, addToProjectTile, regenerateDisplayArea}
+
 })();
-
-
-
-/////// overlay functions /////// 
 
 const manageVerboseProject = (() => {
     const openVerboseProject = (project) => {
-
         clearDisplayArea();
 
         const displayArea = document.getElementById('displayArea');
     
         const verboseProject = document.createElement('div');
         verboseProject.classList.add('overlay');
-        verboseProject.setAttribute('id', `${project.projectTitle}`);
+        verboseProject.setAttribute('id', `${project.title}`);
 
         verboseProject.appendChild(_createVerboseHeader(project));
 
@@ -111,64 +106,11 @@ const manageVerboseProject = (() => {
 
 
     const _createVerboseHeader = (project) => {
-        // const projectHeader = document.createElement('h1');
         const verboseHeader = document.createElement('div');
-        verboseHeader.classList.add('verboseHeader');
-        const projectTitle = document.createElement('input');
-        projectTitle.classList.add('verboseProjectTitle');
-        projectTitle.type = 'text';
-        // projectTitle.id = `${project.projectTitle}`;
-        projectTitle.value = `${project.projectTitle}`;
-        // projectTitle.style.width = (projectTitle.value.length)+1 + 'rem';
-        projectTitle.size = (projectTitle.value.length)+3;
-        projectTitle.readOnly = true;
-
-        projectTitle.oninput = () => {
-            if (projectTitle.value.length==0){
-                return
-            } else {
-                // projectTitle.style.width = (projectTitle.value.length)+1 + 'rem';
-                projectTitle.size = (projectTitle.value.length)+3;
-            }
-        }
-        ///////// make these two their own functions that the main display can also use 
-        projectTitle.ondblclick = (e) => {
-            e.target.readOnly = false;
-            e.target.classList.add('focused');
-        };
-    
-        projectTitle.addEventListener('focusout', (e) => {
-            e.target.readOnly = true;
-            e.target.classList.remove("focused");
-            // e.target.style.width = e.target.value.length + 1 + 'rem';
-            projectTitle.size = (projectTitle.value.length)+3;
-        });
-    ///////// 
-    
-        projectTitle.onchange = (e) => {
-            //update project
-            //update items in project.items
-            //update verboseProject ? this may depend on what is calling it
-            if (e.target.value == '') {
-                e.target.value = e.target.id;
-            } else {
-                const newTitle = e.target.value;
-                const project = projectLibrary.getProject(e.target.id);
-                updateProject(newTitle, project);
-                e.target.id = newTitle;
-            } 
-        };
-    
-        const closeIcon = document.createElement('img');
-        closeIcon.src = "../dist/icons/close.svg";
-        closeIcon.classList.add('icon');
-        closeIcon.addEventListener('click', () =>{
-            manageDisplayArea.regenerateDisplayArea(projectLibrary);
-        })
-    
-        verboseHeader.appendChild(projectTitle);
+        verboseHeader.classList.add('headerDiv');
+        verboseHeader.appendChild(_createTitle(project));
         verboseHeader.appendChild(_createTrashIcon('project'));
-        verboseHeader.appendChild(closeIcon);
+        verboseHeader.appendChild(_createCloseIcon());
 
         return verboseHeader
     }
@@ -176,77 +118,13 @@ const manageVerboseProject = (() => {
     
     const _createVerboseItem = (item) => {    
         const verboseItem = document.createElement('div');
-        verboseItem.classList.add('verboseItem');
+        verboseItem.classList.add('itemDiv');
         verboseItem.setAttribute('id', `${item.itemID}`);
 
-        const itemTitle = document.createElement('input');
-        itemTitle.classList.add('verboseItemTitle');
-        itemTitle.type = 'text';
-        // itemTitle.id = `${item.itemTitle}`;
-        itemTitle.value = `${item.itemTitle}`;
-        // projectTitle.style.width = (projectTitle.value.length)+1 + 'rem';
-        itemTitle.size = (itemTitle.value.length)+3;
-        itemTitle.readOnly = true;
-
-        itemTitle.oninput = () => {
-            if (itemTitle.value.length==0){
-                return
-            } else {
-                // projectTitle.style.width = (projectTitle.value.length)+1 + 'rem';
-                itemTitle.size = (itemTitle.value.length)+3;
-            }
-        }
-    
-        itemTitle.ondblclick = (e) => {
-            e.target.readOnly = false;
-            e.target.classList.add('focused');
-        };
-    
-        itemTitle.addEventListener('focusout', (e) => {
-            e.target.readOnly = true;
-            e.target.classList.remove("focused");
-            // e.target.style.width = e.target.value.length + 1 + 'rem';
-            itemTitle.size = (itemTitle.value.length)+3;
-        });
-    
-        itemTitle.onchange = (e) => {
-            //update project
-            //update items in project.items
-            //update verboseProject ? this may depend on what is calling it
-            if (e.target.value == '') {
-                e.target.value = e.target.id;
-            } else {
-
-                ///////change this for the item inputs 
-                // change the id of the containing div 
-                const newTitle = e.target.value;
-                const project = projectLibrary.getProject(e.target.id);
-                updateProject(newTitle, project);
-                e.target.id = newTitle;
-            } 
-        };
-
-        const dueDate = document.createElement('input');
-        //what about id here
-        dueDate.type = 'date';
-        dueDate.id = "dueDate";
-        dueDate.value = item.dueDate;
-        dueDate.readOnly = true;
-
-        //////// text area description add here 
-
-        const itemDescription = document.createElement('textarea');
-        //what about id here
-        itemDescription.id = 'itemDescription';
-        itemDescription.cols = '30';
-        itemDescription.rows = '10';
-        itemDescription.value = item.itemDescription;
-        itemDescription.readOnly = true;
-
-        // verboseItem.appendChild(itemDescription);
+        // verboseItem.appendChild(_createDescription(item));
         verboseItem.appendChild(_createCheckIcon());
-        verboseItem.appendChild(itemTitle);
-        verboseItem.appendChild(dueDate);
+        verboseItem.appendChild(_createTitle(item));
+        verboseItem.appendChild(_createDueDate(item));
         verboseItem.appendChild(_createTrashIcon('verboseItem'));
 
         return verboseItem
@@ -254,6 +132,11 @@ const manageVerboseProject = (() => {
 
     return {openVerboseProject}
 })();
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////// icons /////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const _createCheckIcon = () => {
     const checkboxIcon = document.createElement('img');
@@ -267,6 +150,18 @@ const _createCheckIcon = () => {
     return checkboxIcon
 }
 
+const _toggleComplete = (item, img) => {
+    const itemDiv = document.getElementById(item.itemID);
+    if (!item.itemCompletion){
+        itemDiv.classList.add('completed');
+        img.src = "../dist/icons/checkbox-outline.svg";
+    } else if (item.itemCompletion) {
+        itemDiv.classList.remove('completed');
+        img.src =  '../dist/icons/checkbox-blank-outline.svg';
+    }
+    item.itemCompletion = !item.itemCompletion;
+}
+
 const _createTrashIcon = (type) => {
     const trashIcon = document.createElement('img');
     trashIcon.src = '../dist/icons/trash-can-outline.svg';
@@ -277,6 +172,10 @@ const _createTrashIcon = (type) => {
             const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
             const project = projectLibrary.getProject(e.composedPath()[2].id);
             project.removeItem(item.itemID);
+            if (project.items.length == 0){
+                projectLibrary.removeProject(project.title);
+                manageSideBar.regenerateProjectArea(projectLibrary)
+            }
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
         });
     } else if (type == 'verboseItem'){
@@ -285,9 +184,9 @@ const _createTrashIcon = (type) => {
             const project = projectLibrary.getProject(e.composedPath()[2].id);
             project.removeItem(item.itemID);
             if (project.items.length == 0){
-                projectLibrary.removeProject(project.projectTitle);
+                projectLibrary.removeProject(project.title);
                 manageDisplayArea.regenerateDisplayArea(projectLibrary);
-                removeProjectButton(project);
+                manageSideBar.regenerateProjectArea(projectLibrary)
             } else {
                 manageVerboseProject.openVerboseProject(project);
             }
@@ -295,8 +194,8 @@ const _createTrashIcon = (type) => {
     } else if (type == 'project'){
         trashIcon.addEventListener('click', (e) => {
             const project = projectLibrary.getProject(e.composedPath()[2].id);
-            removeProjectButton(project);
-            projectLibrary.removeProject(project.projectTitle);
+            projectLibrary.removeProject(project.title);
+            manageSideBar.regenerateProjectArea(projectLibrary);
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
         })
     }
@@ -312,39 +211,142 @@ const _createEditIcon = () => {
         // get item id
         // open modal
         // only call from main display 
+
+        //could have it focus in on the project title or could have it open the project window or could remove it
+        // from the project header entirely since it isnt really needed 
     })
     return editIcon
 };
 
-//these should update the div's as well ?
-const updateProject = (newTitle, project) => {
+const _createCloseIcon = () => {
+    const closeIcon = document.createElement('img');
+    closeIcon.src = "../dist/icons/close.svg";
+    closeIcon.classList.add('icon');
+    closeIcon.addEventListener('click', () =>{
+        //probably will need to accept a type in here 
+        manageDisplayArea.regenerateDisplayArea(projectLibrary);
+    })
+    return closeIcon
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////// input fields /////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const _createTitle = (obj) => {
+    const title = document.createElement('input');
+    title.classList.add('verbose');
+
+    title.type = 'text';
+    title.value = `${obj.title}`;
+    title.size = (title.value.length)+3;
+    title.readOnly = true;
+    if (obj.type == 'item'){
+        title.id = obj.title;
+    }
+
+    title.oninput = () => {
+        if (title.value.length==0){
+            return
+        } else {
+            title.size = (title.value.length)+3;
+        }
+    }
+
+    title.ondblclick = (e) => {
+        e.target.readOnly = false;
+        e.target.classList.add('focused');
+    };
+
+    title.addEventListener('focusout', (e) => {
+        e.target.readOnly = true;
+        e.target.classList.remove("focused");
+        title.size = (title.value.length)+3;
+    });
+
+    if (obj.type == 'item'){
+        title.onchange = (e) => {
+            if (e.target.value == '') {
+                e.target.value = e.target.id;
+            } else {
+                const newTitle = e.target.value;
+                const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
+                item.title = newTitle;
+                e.target.id = newTitle;
+            } 
+        };
+    } else if (obj.type == 'project'){
+        title.onchange = (e) => {
+            if (e.target.value == '') {
+                e.target.value = e.composedPath()[2].id;
+            } else {
+                const newTitle = e.target.value;
+                const project = projectLibrary.getProject(e.composedPath()[2].id);
+                _updateProject(newTitle, project);
+                manageSideBar.regenerateProjectArea(projectLibrary)
+            } 
+        };
+    }
+
+    return title
+};
+
+const _createDueDate = (item) => {
+    const dueDate = document.createElement('input');
+    dueDate.type = 'date';
+    dueDate.value = item.itemDueDate;
+    dueDate.readOnly = true;
+
+    dueDate.ondblclick = (e) => {
+        e.target.readOnly = false;
+    };
+
+    dueDate.addEventListener('focusout', (e) => {
+        e.target.readOnly = true;
+    });
+
+    dueDate.onchange = (e) => {
+        const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
+        item.itemDueDate = e.target.value;
+    };
+
+    return dueDate
+};
+
+const _createDescription = () => {
+    const itemDescription = document.createElement('textarea');
+    // itemDescription.id = 'itemDescription';
+    itemDescription.cols = '30';
+    itemDescription.rows = '10';
+    itemDescription.value = item.itemDescription;
+    itemDescription.readOnly = true;
+
+    return itemDescription
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const _updateProject = (newTitle, project) => {
     for (let item of project.items){
+        const itemDiv = document.getElementById(item.itemID);
+        item.itemID = `${newTitle}-` + `${project.giveID()}`;
+        itemDiv.id = item.itemID;
         item.projectTitle = newTitle;
     }
-    project.projectTitle = newTitle;
+    const projectDisp = document.getElementById(project.title);
+    project.title = newTitle;
+    projectDisp.id = project.title;
 };
 
-const updateItem = (item) => {
-
-};
-
-//separate functions. one to do the img source and the other to change the object information 
-//make this accessable gloablly here 
-const _toggleComplete = (item, img) => {
-    const itemDiv = document.getElementById(item.itemID);
-    if (!item.itemCompletion){
-        itemDiv.classList.add('completed');
-        img.src = "../dist/icons/checkbox-outline.svg";
-    } else if (item.itemCompletion) {
-        itemDiv.classList.remove('completed');
-        img.src =  '../dist/icons/checkbox-blank-outline.svg';
-    }
-    item.itemCompletion = !item.itemCompletion;
-}
-
-const clearDisplayArea = () => {
-    const displayArea = document.getElementById('displayArea');
-    displayArea.innerHTML = '';
-}
+// const _updateItem = (newTitle, item) => {
+//     item.projectTitle = newTitle;
+// };
 
 export {createDisplayArea, manageVerboseProject, manageDisplayArea}
