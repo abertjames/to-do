@@ -76,8 +76,8 @@ const manageDisplayArea = (() => {
 
         headerDiv.appendChild(_createTitle(project));
 
-        ///
-        // headerDiv.appendChild(_createEditIcon(project));
+        /// might want to remove this but it is nice to have it 
+        headerDiv.appendChild(_createEditIcon(project));
         ///
 
         headerDiv.appendChild(_createTrashIcon(project, false));
@@ -132,6 +132,9 @@ const manageVerboseProject = (() => {
     
     
     const createVerboseItem = (item) => {    
+        // could take in two variables, one for verbose and 
+        // one for date window and then with the right conditions i would 
+        // not need two item functions 
         const verboseItem = document.createElement('div');
         verboseItem.classList.add('verboseItemDiv');
         verboseItem.setAttribute('id', `${item.ID}`);
@@ -148,7 +151,7 @@ const manageVerboseProject = (() => {
         topRow.appendChild(_createCheckIcon(item));
         topRow.appendChild(_createTitle(item));
         topRow.appendChild(_createDueDate(item));
-        topRow.appendChild(_createTrashIcon(item, true));
+        topRow.appendChild(_createTrashIcon(item));
 
         verboseItem.appendChild(topRow);
         verboseItem.appendChild(_createDescription(item));
@@ -171,11 +174,19 @@ const manageDateWindow = (() => {
         const displayArea = document.getElementById('displayArea');
         const dateWindow = document.createElement('div');
         dateWindow.classList.add('overlay');
+        const header = document.createElement('h2');
+        header.classList.add('dateHeader');
+        if (target == 0){
+            header.textContent = 'Today';
+        } else if (target == 7){
+            header.textContent = 'This Week';
+        }
+        dateWindow.appendChild(header);
 
         for (let project of projectLibrary.projects){
             for (let item of project.items){
                 if (getDateDifference(new Date(item.itemDueDate))<=target){
-                    dateWindow.appendChild(manageVerboseProject._createVerboseItem(item));
+                    dateWindow.appendChild(manageVerboseProject.createVerboseItem(item));
                 }
             }
         }
@@ -265,37 +276,21 @@ const _createTrashIcon = (obj, verbose, dateWindow) => {
 
     if (type == 'item'){
         trashIcon.addEventListener('click', (e) => {
-            const itemID = e.target.id.split('/').pop()
-            const item = projectLibrary.getItem(itemID);
-            const project = projectLibrary.getProject(e.composedPath()[3].id);
+            const itemDiv = document.getElementById(e.target.id.split('/').pop());
+            const item = projectLibrary.getItem(e.target.id.split('/').pop());
+            const project = projectLibrary.getProject(item.projectTitle);
 
-            project.removeItem(item.ID);
-            if (project.items.length == 0){
+            if(itemDiv.parentElement.childNodes.length <= 2){
                 projectLibrary.removeProject(project.title);
-                manageSideBar.regenerateProjectArea(projectLibrary)
-            }
-            manageDisplayArea.regenerateDisplayArea(projectLibrary);
-        });
-    } else if (type == 'item' && verb){
-        trashIcon.addEventListener('click', (e) => {
-            const itemID = e.target.id.split('/').pop()
-            const item = projectLibrary.getItem(itemID);
-
-            const project = projectLibrary.getProject(e.composedPath()[3].id);
-            project.removeItem(item.ID);
-            if (project.items.length == 0){
-                projectLibrary.removeProject(project.title);
+                manageSideBar.regenerateProjectArea(projectLibrary);
                 manageDisplayArea.regenerateDisplayArea(projectLibrary);
-                manageSideBar.regenerateProjectArea(projectLibrary)
-            } else {
-                manageVerboseProject.openVerboseProject(project);
             }
-        })
-    } else if (type == 'item' && dateWindow){
-        //should just use remove child node here and snipe it out 
+            itemDiv.remove()
+            project.removeItem(item.ID);
+        });
     } else if (type == 'project'){
         trashIcon.addEventListener('click', (e) => {
-            const project = projectLibrary.getProject(e.composedPath()[2].id);
+            const project = projectLibrary.getProject(e.target.id.split('/').pop());
             projectLibrary.removeProject(project.title);
             manageSideBar.regenerateProjectArea(projectLibrary);
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
@@ -304,23 +299,31 @@ const _createTrashIcon = (obj, verbose, dateWindow) => {
     return trashIcon
 }
 
-const _createEditIcon = (item) => {
+const _createEditIcon = (obj) => {
     const editIcon = document.createElement('img');
     editIcon.classList.add('icon');
     editIcon.src = '../dist/icons/text-box-edit-outline.svg';
-    editIcon.id = "edit/"+`${item.ID}`
-    editIcon.addEventListener('click', (e) => {
-        // open a verbose item modal 
-        // get item id
-        // open modal
-        // only call from main display
-        
-        const itemID = e.target.id.split('/').pop()
-        const item = projectLibrary.getItem(itemID);
+    editIcon.id = "edit/"+`${obj.ID}`
+    if (obj.type == 'project'){
+        editIcon.addEventListener('click', (e) => {
+            const project = projectLibrary.getProject(e.target.id.split('/').pop());
+            manageVerboseProject.openVerboseProject(project);
+        })
+    } else if (obj.type == 'item'){
+        editIcon.addEventListener('click', (e) => {
+            // open a verbose item modal 
+            // get item id
+            // open modal
+            // only call from main display
+            
+            const itemID = e.target.id.split('/').pop()
+            const item = projectLibrary.getItem(itemID);
+    
+            //could have it focus in on the project title or could have it open the project window or could remove it
+            // from the project header entirely since it isnt really needed 
+        })
+    }
 
-        //could have it focus in on the project title or could have it open the project window or could remove it
-        // from the project header entirely since it isnt really needed 
-    })
     return editIcon
 };
 
@@ -354,6 +357,8 @@ const _createTitle = (obj) => {
     title.readOnly = true;
     if (obj.type == 'item'){
         title.id = obj.title;
+    } else if (obj.type == 'project'){
+        title.style = "text-transform: uppercase;"
     }
 
     title.oninput = () => {
@@ -388,11 +393,11 @@ const _createTitle = (obj) => {
         };
     } else if (obj.type == 'project'){
         title.onchange = (e) => {
-            if (e.target.value == '') {
-                e.target.value = e.composedPath()[3].id;
+            if (e.target.value == '' || projectLibrary.isInProjectLibrary(e.target.value.toUpperCase())) {
+                e.target.value = e.composedPath()[2].id;
             } else {
-                const newTitle = e.target.value;
-                const project = projectLibrary.getProject(e.composedPath()[3].id);
+                const newTitle = e.target.value.toUpperCase();
+                const project = projectLibrary.getProject(e.composedPath()[2].id);
                 _updateProject(newTitle, project);
                 manageSideBar.regenerateProjectArea(projectLibrary)
             } 
@@ -457,14 +462,20 @@ const _updateProject = (newTitle, project) => {
         item.ID = `${newTitle}-` + `${project.giveID()}`;
         itemDiv.id = item.ID;
         item.projectTitle = newTitle;
+        _updateItemIcons()
     }
     const projectDisp = document.getElementById(project.title);
     project.title = newTitle;
     projectDisp.id = project.title;
 };
 
-// const _updateItem = (newTitle, item) => {
-//     item.projectTitle = newTitle;
-// };
+const _updateItemIcons = (newTitle, item) => {
+    const checkBox = document.getElementById()
+    const trashIcon = document.getElementById()
+    const editIcon = document.getElementById()
+    //need to update trash icon, edit icon if there is one, and checkbox icon 
+    //search by contains the old id if possible 
+    //honestly needs to get called from the update project, everything else gets updated as inputs 
+};
 
 export {createDisplayArea, manageVerboseProject, manageDisplayArea, manageDateWindow}

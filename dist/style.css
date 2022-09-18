@@ -3,9 +3,9 @@
     padding: 0;
 }
 
-body {
+/* body {
 
-}
+} */
 
 input, button, textarea, body {
     font-family: 'Times New Roman', Times, serif;
@@ -46,6 +46,7 @@ header {
     display: flex;
     flex-direction: column;
     row-gap: var(--gap);
+    overflow-y: auto;
 }
 
 #projectArea button {
@@ -144,6 +145,21 @@ button {
     align-items: center;
     row-gap: var(--smallGap);
     /* border-bottom: 1px solid gray; */
+}
+
+.dateHeader {
+    text-align: center;
+    position: sticky;
+    top: 0;
+
+    width: 100%;
+
+    background-color: white;
+    opacity: 1;
+
+    border-bottom: 2px solid black;
+    padding-bottom: var(--smallGap);
+    padding-top: var(--smallGap);
 }
 
 /* ///////////////// */

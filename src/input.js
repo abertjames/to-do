@@ -97,6 +97,7 @@ const createInput = (() => {
         newProjectInput.id = 'projectInput';
         newProjectInput.placeholder = 'Project';
         newProjectInput.required = true;
+        newProjectInput.style = "text-transform: uppercase;"
         
         return newProjectInput
     }
@@ -147,25 +148,18 @@ const createInput = (() => {
         if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             newItem.ID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
-            ///
-            manageDisplayArea.addToProjectTile(newItem);
-            ///
-    
+            // manageDisplayArea.addToProjectTile(newItem);
         } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             const project = new Project(newItem.projectTitle);
             projectLibrary.addProject(project);
             newItem.ID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             project.addItem(newItem);
-
-            ///
-            manageDisplayArea.addToDisplayArea(project);
-            manageDisplayArea.addToProjectTile(newItem);
-            ///
-    
-            manageSideBar.regenerateProjectArea(projectLibrary)
-
-            console.log(newItem)
+            // manageDisplayArea.addToDisplayArea(project);
+            // manageDisplayArea.addToProjectTile(newItem);
+            // manageSideBar.regenerateProjectArea(projectLibrary);
         }
+        manageDisplayArea.regenerateDisplayArea(projectLibrary);
+        manageSideBar.regenerateProjectArea(projectLibrary);
     }
     
     const _createClearButton = () => {
