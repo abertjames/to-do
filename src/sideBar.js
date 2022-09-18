@@ -1,4 +1,4 @@
-import { manageVerboseProject, manageDisplayArea } from "./display";
+import { manageVerboseProject, manageDisplayArea, manageDateWindow } from "./display";
 import { projectLibrary } from "./input";
 
 const manageSideBar = (() => {
@@ -14,8 +14,15 @@ const manageSideBar = (() => {
     
         const todayButton = document.createElement('button');
         todayButton.textContent = 'Today';
+        todayButton.addEventListener('click', () => {
+            manageDateWindow.openDateWindow(0);
+        })
+
         const weekButton = document.createElement('button');
-        weekButton.textContent = 'This Week'
+        weekButton.textContent = 'This Week';
+        weekButton.addEventListener('click', () => {
+            manageDateWindow.openDateWindow(7);
+        });
     
         sideBar.appendChild(homeButton);
         sideBar.appendChild(todayButton);

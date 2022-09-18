@@ -8,14 +8,14 @@ class Item {
         itemDueDate = "unknown",
         itemDescription = "unknown",
         itemCompletion = 'unknown',
-        itemID = 'unknown',
+        ID = 'unknown',
     ){
         this.title = title
         this.projectTitle = projectTitle
         this.itemDueDate = itemDueDate
         this.itemDescription = itemDescription
         this.itemCompletion = itemCompletion
-        this.itemID = itemID
+        this.ID = ID
         this.type = 'item'
     }
 }
@@ -26,9 +26,11 @@ class Project {
     ){
         this.items = [];
         this.IDAssigner = -1;
+        this.ID = title;
         this.title = title;
         this.type = 'project';
     }
+
     giveID() {
         this.IDAssigner +=1;
         return this.IDAssigner
@@ -37,10 +39,13 @@ class Project {
         this.items.push(newItem)
     }
     removeItem(itemID) {
-        this.items = this.items.filter((item) => item.itemID !== itemID)
+        this.items = this.items.filter((item) => item.ID !== itemID)
     }
     getItem(itemID) {
-        return this.items.find((item) => item.itemID === itemID);
+        return this.items.find((item) => item.ID === itemID);
+    }
+    isInProject(itemID){
+        return this.items.some((item) => item.ID === itemID)
     }
 }
 
@@ -59,6 +64,13 @@ class ProjectLibrary {
     getProject(projectTitle) {
         return this.projects.find((project) => project.title === projectTitle)
     }
+    getItem(itemID){
+        for (let project of this.projects){
+            if (project.isInProject(itemID)){
+                return project.getItem(itemID)
+            }
+        }
+    }
     isInProjectLibrary(projectTitle) {
         return this.projects.some((project) => project.title === projectTitle)
     }
@@ -74,6 +86,7 @@ const createInput = (() => {
         newItemInput.type = "text";
         newItemInput.id = 'itemInput';
         newItemInput.placeholder = 'Title';
+        newItemInput.required = true;
     
         return newItemInput
     }
@@ -83,6 +96,7 @@ const createInput = (() => {
         newProjectInput.type = 'text';
         newProjectInput.id = 'projectInput';
         newProjectInput.placeholder = 'Project';
+        newProjectInput.required = true;
         
         return newProjectInput
     }
@@ -130,10 +144,8 @@ const createInput = (() => {
     
         const newItem = _createItemFromInput();
     
-        if (newItem.title == '' || newItem.projectTitle == '') {
-            return
-        } else if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
-            newItem.itemID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
+        if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
+            newItem.ID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
             ///
             manageDisplayArea.addToProjectTile(newItem);
@@ -142,7 +154,7 @@ const createInput = (() => {
         } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             const project = new Project(newItem.projectTitle);
             projectLibrary.addProject(project);
-            newItem.itemID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
+            newItem.ID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             project.addItem(newItem);
 
             ///
@@ -151,6 +163,8 @@ const createInput = (() => {
             ///
     
             manageSideBar.regenerateProjectArea(projectLibrary)
+
+            console.log(newItem)
         }
     }
     

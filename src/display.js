@@ -42,13 +42,24 @@ const manageDisplayArea = (() => {
     
     const _createItem = (item) => {
         const listItem = document.createElement('div');
-        listItem.classList.add('itemDiv');
-        listItem.setAttribute('id', item.itemID);
+        listItem.classList.add('verboseItemDiv');
+        listItem.setAttribute('id', item.ID);
 
-        listItem.appendChild(_createCheckIcon());
-        listItem.appendChild(_createTitle(item));
-        listItem.appendChild(_createEditIcon());
-        listItem.appendChild(_createTrashIcon('item'));
+        const topRow = document.createElement('div');
+        topRow.classList.add('itemDiv');
+
+        if (!item.itemCompletion){
+            listItem.classList.remove('completed');
+        } else if (item.itemCompletion) {
+            listItem.classList.add('completed');
+        }
+
+        topRow.appendChild(_createCheckIcon(item));
+        topRow.appendChild(_createTitle(item));
+        topRow.appendChild(_createEditIcon(item));
+        topRow.appendChild(_createTrashIcon(item, false));
+
+        listItem.appendChild(topRow);
     
         return listItem
     }
@@ -64,8 +75,12 @@ const manageDisplayArea = (() => {
         headerDiv.classList.add('headerDiv');
 
         headerDiv.appendChild(_createTitle(project));
-        headerDiv.appendChild(_createEditIcon());
-        headerDiv.appendChild(_createTrashIcon('project'));
+
+        ///
+        // headerDiv.appendChild(_createEditIcon(project));
+        ///
+
+        headerDiv.appendChild(_createTrashIcon(project, false));
     
         projectTile.appendChild(headerDiv);
     
@@ -99,7 +114,7 @@ const manageVerboseProject = (() => {
         verboseProject.appendChild(_createVerboseHeader(project));
 
         for (let item of project.items){
-            verboseProject.appendChild(_createVerboseItem(item));
+            verboseProject.appendChild(createVerboseItem(item));
         }
         displayArea.appendChild(verboseProject);
     }
@@ -109,41 +124,118 @@ const manageVerboseProject = (() => {
         const verboseHeader = document.createElement('div');
         verboseHeader.classList.add('headerDiv');
         verboseHeader.appendChild(_createTitle(project));
-        verboseHeader.appendChild(_createTrashIcon('project'));
+        verboseHeader.appendChild(_createTrashIcon(project, false));
         verboseHeader.appendChild(_createCloseIcon());
 
         return verboseHeader
     }
     
     
-    const _createVerboseItem = (item) => {    
+    const createVerboseItem = (item) => {    
         const verboseItem = document.createElement('div');
-        verboseItem.classList.add('itemDiv');
-        verboseItem.setAttribute('id', `${item.itemID}`);
+        verboseItem.classList.add('verboseItemDiv');
+        verboseItem.setAttribute('id', `${item.ID}`);
 
-        // verboseItem.appendChild(_createDescription(item));
-        verboseItem.appendChild(_createCheckIcon());
-        verboseItem.appendChild(_createTitle(item));
-        verboseItem.appendChild(_createDueDate(item));
-        verboseItem.appendChild(_createTrashIcon('verboseItem'));
+        const topRow = document.createElement('div');
+        topRow.classList.add('itemDiv');
+        
+        if (!item.itemCompletion){
+            verboseItem.classList.remove('completed');
+        } else if (item.itemCompletion) {
+            verboseItem.classList.add('completed');
+        }
 
+        topRow.appendChild(_createCheckIcon(item));
+        topRow.appendChild(_createTitle(item));
+        topRow.appendChild(_createDueDate(item));
+        topRow.appendChild(_createTrashIcon(item, true));
+
+        verboseItem.appendChild(topRow);
+        verboseItem.appendChild(_createDescription(item));
         return verboseItem
     }
 
-    return {openVerboseProject}
+    return {openVerboseProject, createVerboseItem}
 })();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////// date window //////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const manageDateWindow = (() => {
+
+    const openDateWindow = (target) => {
+
+        clearDisplayArea();
+
+        const displayArea = document.getElementById('displayArea');
+        const dateWindow = document.createElement('div');
+        dateWindow.classList.add('overlay');
+
+        for (let project of projectLibrary.projects){
+            for (let item of project.items){
+                if (getDateDifference(new Date(item.itemDueDate))<=target){
+                    dateWindow.appendChild(manageVerboseProject._createVerboseItem(item));
+                }
+            }
+        }
+        displayArea.appendChild(dateWindow);
+    }
+
+    const getDateDifference = (date) => {
+        const dueDateMiliSec = Date.UTC(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate(),
+        );
+
+        const today = new Date();
+        const todayMiliSec = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+      
+        const differenceInMilliseconds = dueDateMiliSec - todayMiliSec;
+      
+        const differenceInDays = differenceInMilliseconds / 1000 / 60 / 60 / 24;
+      
+        return differenceInDays+1;
+    }
+
+    return {openDateWindow}
+})();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////// item window //////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const _openItemWindow = (item) => {
+
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////// icons /////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const _createCheckIcon = () => {
+const _createCheckIcon = (item) => {
     const checkboxIcon = document.createElement('img');
-    checkboxIcon.src = '../dist/icons/checkbox-blank-outline.svg';
     checkboxIcon.classList.add('icon');
+    checkboxIcon.id = "checkBox/"+`${item.ID}`;
+
+    if (!item.itemCompletion){
+        checkboxIcon.src =  '../dist/icons/checkbox-blank-outline.svg';
+    } else if (item.itemCompletion) {
+        checkboxIcon.src = "../dist/icons/checkbox-outline.svg";
+    }
+
     checkboxIcon.addEventListener('click', (e) => {
-        const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
+        const itemID = e.target.id.split('/').pop()
+        const item = projectLibrary.getItem(itemID);
         const img = e.composedPath()[0];
         _toggleComplete(item, img)
     });
@@ -151,7 +243,7 @@ const _createCheckIcon = () => {
 }
 
 const _toggleComplete = (item, img) => {
-    const itemDiv = document.getElementById(item.itemID);
+    const itemDiv = document.getElementById(item.ID);
     if (!item.itemCompletion){
         itemDiv.classList.add('completed');
         img.src = "../dist/icons/checkbox-outline.svg";
@@ -162,27 +254,35 @@ const _toggleComplete = (item, img) => {
     item.itemCompletion = !item.itemCompletion;
 }
 
-const _createTrashIcon = (type) => {
+const _createTrashIcon = (obj, verbose, dateWindow) => {
     const trashIcon = document.createElement('img');
     trashIcon.src = '../dist/icons/trash-can-outline.svg';
     trashIcon.classList.add('icon');
+    trashIcon.id = "trash/" + `${obj.ID}`
+
+    const type = obj.type;
+    const verb = verbose;
 
     if (type == 'item'){
         trashIcon.addEventListener('click', (e) => {
-            const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
-            const project = projectLibrary.getProject(e.composedPath()[2].id);
-            project.removeItem(item.itemID);
+            const itemID = e.target.id.split('/').pop()
+            const item = projectLibrary.getItem(itemID);
+            const project = projectLibrary.getProject(e.composedPath()[3].id);
+
+            project.removeItem(item.ID);
             if (project.items.length == 0){
                 projectLibrary.removeProject(project.title);
                 manageSideBar.regenerateProjectArea(projectLibrary)
             }
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
         });
-    } else if (type == 'verboseItem'){
+    } else if (type == 'item' && verb){
         trashIcon.addEventListener('click', (e) => {
-            const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
-            const project = projectLibrary.getProject(e.composedPath()[2].id);
-            project.removeItem(item.itemID);
+            const itemID = e.target.id.split('/').pop()
+            const item = projectLibrary.getItem(itemID);
+
+            const project = projectLibrary.getProject(e.composedPath()[3].id);
+            project.removeItem(item.ID);
             if (project.items.length == 0){
                 projectLibrary.removeProject(project.title);
                 manageDisplayArea.regenerateDisplayArea(projectLibrary);
@@ -191,6 +291,8 @@ const _createTrashIcon = (type) => {
                 manageVerboseProject.openVerboseProject(project);
             }
         })
+    } else if (type == 'item' && dateWindow){
+        //should just use remove child node here and snipe it out 
     } else if (type == 'project'){
         trashIcon.addEventListener('click', (e) => {
             const project = projectLibrary.getProject(e.composedPath()[2].id);
@@ -202,15 +304,19 @@ const _createTrashIcon = (type) => {
     return trashIcon
 }
 
-const _createEditIcon = () => {
+const _createEditIcon = (item) => {
     const editIcon = document.createElement('img');
     editIcon.classList.add('icon');
     editIcon.src = '../dist/icons/text-box-edit-outline.svg';
+    editIcon.id = "edit/"+`${item.ID}`
     editIcon.addEventListener('click', (e) => {
         // open a verbose item modal 
         // get item id
         // open modal
-        // only call from main display 
+        // only call from main display
+        
+        const itemID = e.target.id.split('/').pop()
+        const item = projectLibrary.getItem(itemID);
 
         //could have it focus in on the project title or could have it open the project window or could remove it
         // from the project header entirely since it isnt really needed 
@@ -230,8 +336,8 @@ const _createCloseIcon = () => {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,7 +381,7 @@ const _createTitle = (obj) => {
                 e.target.value = e.target.id;
             } else {
                 const newTitle = e.target.value;
-                const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
+                const item = projectLibrary.getProject(e.composedPath()[3].id).getItem(e.composedPath()[2].id);
                 item.title = newTitle;
                 e.target.id = newTitle;
             } 
@@ -283,10 +389,10 @@ const _createTitle = (obj) => {
     } else if (obj.type == 'project'){
         title.onchange = (e) => {
             if (e.target.value == '') {
-                e.target.value = e.composedPath()[2].id;
+                e.target.value = e.composedPath()[3].id;
             } else {
                 const newTitle = e.target.value;
-                const project = projectLibrary.getProject(e.composedPath()[2].id);
+                const project = projectLibrary.getProject(e.composedPath()[3].id);
                 _updateProject(newTitle, project);
                 manageSideBar.regenerateProjectArea(projectLibrary)
             } 
@@ -311,33 +417,45 @@ const _createDueDate = (item) => {
     });
 
     dueDate.onchange = (e) => {
-        const item = projectLibrary.getProject(e.composedPath()[2].id).getItem(e.composedPath()[1].id);
+        const item = projectLibrary.getProject(e.composedPath()[3].id).getItem(e.composedPath()[2].id);
         item.itemDueDate = e.target.value;
     };
 
     return dueDate
 };
 
-const _createDescription = () => {
+const _createDescription = (item) => {
     const itemDescription = document.createElement('textarea');
-    // itemDescription.id = 'itemDescription';
-    itemDescription.cols = '30';
-    itemDescription.rows = '10';
     itemDescription.value = item.itemDescription;
     itemDescription.readOnly = true;
+
+    itemDescription.ondblclick = (e) => {
+        e.target.readOnly = false;
+    };
+
+    itemDescription.addEventListener('focusout', (e) => {
+        e.target.readOnly = true;
+    });
+
+    itemDescription.onchange = (e) => {
+        const item = projectLibrary.getProject(e.composedPath()[3].id).getItem(e.composedPath()[2].id);
+        item.itemDescription = e.target.value;
+    };
+
+    itemDescription.classList.add('itemDescription');
 
     return itemDescription
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 const _updateProject = (newTitle, project) => {
     for (let item of project.items){
-        const itemDiv = document.getElementById(item.itemID);
-        item.itemID = `${newTitle}-` + `${project.giveID()}`;
-        itemDiv.id = item.itemID;
+        const itemDiv = document.getElementById(item.ID);
+        item.ID = `${newTitle}-` + `${project.giveID()}`;
+        itemDiv.id = item.ID;
         item.projectTitle = newTitle;
     }
     const projectDisp = document.getElementById(project.title);
@@ -349,4 +467,4 @@ const _updateProject = (newTitle, project) => {
 //     item.projectTitle = newTitle;
 // };
 
-export {createDisplayArea, manageVerboseProject, manageDisplayArea}
+export {createDisplayArea, manageVerboseProject, manageDisplayArea, manageDateWindow}
