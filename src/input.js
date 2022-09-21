@@ -1,5 +1,6 @@
 import {manageDisplayArea} from "./display";
 import {manageSideBar} from "./sideBar";
+import {saveLocal, retrieveLocal} from "./storage"
 
 class Item {
     constructor(
@@ -157,9 +158,13 @@ const createInput = (() => {
             // manageDisplayArea.addToDisplayArea(project);
             // manageDisplayArea.addToProjectTile(newItem);
             // manageSideBar.regenerateProjectArea(projectLibrary);
+            // console.log(projectLibrary.projects)
+            // saveLocal()
+            // retrieveLocal()
         }
         manageDisplayArea.regenerateDisplayArea(projectLibrary);
         manageSideBar.regenerateProjectArea(projectLibrary);
+        saveLocal()
     }
     
     const _createClearButton = () => {
@@ -204,5 +209,4 @@ const createInput = (() => {
     return {createInputBar}
 })();
 
-
-export {createInput, projectLibrary}
+export {createInput, projectLibrary, ProjectLibrary, Project, Item}
