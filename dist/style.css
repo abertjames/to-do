@@ -12,6 +12,13 @@ input, button, textarea, body {
     font-size: 1rem;
 }
 
+textarea, input {
+    padding: var(--smallGap);
+    border-radius: var(--borderRadius);
+    /* border-style: none; */
+    border: 2px solid black;
+}
+
 :root{
     --padding: 1rem;
     --gap: 1rem;
@@ -70,6 +77,8 @@ button {
     display: grid;
     grid-auto-flow: row;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: max-content;
+    row-gap: var(--gap);
     overflow-y: auto;
     position: relative;
     max-width: 60vw;
@@ -104,7 +113,7 @@ button {
     position: sticky;
     top: 0;
 
-    width: 100%;
+    /* width: 100%; */
 
     background-color: white;
     opacity: 1;
@@ -123,8 +132,11 @@ button {
     height: 100%;
     grid-column: 1/end;
 
-    background-color: bisque;
-    border: 2px solid red;
+    /* background-color: bisque; */
+    border: 2px solid black;
+    border-radius: var(--borderRadius);
+    box-shadow: var(--boxShadow);
+    /* padding: var(--smallGap); */
 }
 
 .verbose {
@@ -158,7 +170,7 @@ button {
     position: sticky;
     top: 0;
 
-    width: 100%;
+    /* width: 100%; */
 
     background-color: white;
     opacity: 1;
@@ -178,6 +190,10 @@ button {
     height: 4rem;
     grid-row: 2/3;
     grid-column: 2/end;
+}
+
+.overlay .headerDiv, .overlay .verboseItemDiv, .overlay .dateHeader {
+    margin: var(--smallGap);
 }
 
 .verboseItemDiv .itemDiv {
@@ -225,10 +241,6 @@ button {
     position: absolute;
     display: grid;
     place-items: center;
-
-    /* position: fixed; Stay in place */
-    /* z-index: 1; Sit on top */
-    /* padding-top: 100px; Location of the box */
     left: 0;
     top: 0;
     width: 100%;

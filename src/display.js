@@ -186,7 +186,7 @@ const manageDateWindow = (() => {
 
         for (let project of projectLibrary.projects){
             for (let item of project.items){
-                if (getDateDifference(new Date(item.itemDueDate))<=target){
+                if (_getDateDifference(new Date(item.itemDueDate))<=target){
                     dateWindow.appendChild(manageVerboseProject.createVerboseItem(item));
                 }
             }
@@ -194,7 +194,7 @@ const manageDateWindow = (() => {
         displayArea.appendChild(dateWindow);
     }
 
-    const getDateDifference = (date) => {
+    const _getDateDifference = (date) => {
         const dueDateMiliSec = Date.UTC(
           date.getFullYear(),
           date.getMonth(),
@@ -249,9 +249,9 @@ const _createCheckIcon = (item) => {
     checkboxIcon.id = "checkBox/"+`${item.ID}`;
 
     if (!item.itemCompletion){
-        checkboxIcon.src =  '../dist/icons/checkbox-blank-outline.svg';
+        checkboxIcon.src =  './dist/icons/checkbox-blank-outline.svg';
     } else if (item.itemCompletion) {
-        checkboxIcon.src = "../dist/icons/checkbox-outline.svg";
+        checkboxIcon.src = "./dist/icons/checkbox-outline.svg";
     }
 
     checkboxIcon.addEventListener('click', (e) => {
@@ -268,17 +268,17 @@ const _toggleComplete = (item, img) => {
     const itemDiv = document.getElementById(item.ID);
     if (!item.itemCompletion){
         itemDiv.classList.add('completed');
-        img.src = "../dist/icons/checkbox-outline.svg";
+        img.src = "./dist/icons/checkbox-outline.svg";
     } else if (item.itemCompletion) {
         itemDiv.classList.remove('completed');
-        img.src =  '../dist/icons/checkbox-blank-outline.svg';
+        img.src =  './dist/icons/checkbox-blank-outline.svg';
     }
     item.itemCompletion = !item.itemCompletion;
 }
 
 const _createTrashIcon = (obj, verbose, dateWindow) => {
     const trashIcon = document.createElement('img');
-    trashIcon.src = '../dist/icons/trash-can-outline.svg';
+    trashIcon.src = './dist/icons/trash-can-outline.svg';
     trashIcon.classList.add('icon');
     trashIcon.id = "trash/" + `${obj.ID}`
 
@@ -315,7 +315,7 @@ const _createTrashIcon = (obj, verbose, dateWindow) => {
 const _createEditIcon = (obj) => {
     const editIcon = document.createElement('img');
     editIcon.classList.add('icon');
-    editIcon.src = '../dist/icons/text-box-edit-outline.svg';
+    editIcon.src = './dist/icons/text-box-edit-outline.svg';
     editIcon.id = "edit/"+`${obj.ID}`
     if (obj.type == 'project'){
         editIcon.addEventListener('click', (e) => {
@@ -335,7 +335,7 @@ const _createEditIcon = (obj) => {
 
 const _createCloseIcon = () => {
     const closeIcon = document.createElement('img');
-    closeIcon.src = "../dist/icons/close.svg";
+    closeIcon.src = "./dist/icons/close.svg";
     closeIcon.classList.add('icon');
     closeIcon.addEventListener('click', () =>{
         //probably will need to accept a type in here 
