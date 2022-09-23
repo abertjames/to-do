@@ -75,8 +75,12 @@ button {
     padding: var(--padding);
     column-gap: var(--gap);
     display: grid;
-    grid-auto-flow: row;
+    /* grid-auto-flow: row; */
     grid-template-columns: 1fr 1fr 1fr;
+
+    height: fit-content;
+    max-height: 78vh;
+
     grid-template-rows: max-content;
     row-gap: var(--gap);
     overflow-y: auto;
