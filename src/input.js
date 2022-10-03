@@ -1,6 +1,6 @@
 import {manageDisplayArea} from "./display";
 import {manageSideBar} from "./sideBar";
-import {saveLocal, retrieveLocal} from "./storage"
+import {saveLocal, auth, uploadNewItem} from "./storage"
 
 class Item {
     constructor(
@@ -141,7 +141,7 @@ const createInput = (() => {
         return new Item(title, projectTitle, dueDate, itemDescription, false, 'unknown')
     }
     
-    const _addItem = (e) => {
+    const _addItem = async (e) => {
         e.preventDefault();
     
         const newItem = _createItemFromInput();
@@ -149,22 +149,20 @@ const createInput = (() => {
         if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             newItem.ID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
-            // manageDisplayArea.addToProjectTile(newItem);
         } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             const project = new Project(newItem.projectTitle);
             projectLibrary.addProject(project);
             newItem.ID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             project.addItem(newItem);
-            // manageDisplayArea.addToDisplayArea(project);
-            // manageDisplayArea.addToProjectTile(newItem);
-            // manageSideBar.regenerateProjectArea(projectLibrary);
-            // console.log(projectLibrary.projects)
-            // saveLocal()
-            // retrieveLocal()
         }
         manageDisplayArea.regenerateDisplayArea(projectLibrary);
         manageSideBar.regenerateProjectArea(projectLibrary);
-        saveLocal()
+
+        if (auth.currentUser){
+            await uploadNewItem(newItem);
+        } else {
+            saveLocal()
+        }
     }
     
     const _createClearButton = () => {

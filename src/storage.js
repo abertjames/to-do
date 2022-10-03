@@ -1,37 +1,163 @@
-import { projectLibrary, ProjectLibrary, Project, Item } from "./input"
-import { manageDisplayArea } from "./display";
+import { projectLibrary, Project, Item } from "./input"
+import { manageDisplayArea, clearDisplayArea } from "./display";
 import { manageSideBar } from "./sideBar";
+
+// cloud storage 
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getFirestore, doc ,setDoc, getDocs, deleteDoc, collection, query, where, addDoc, } from "firebase/firestore";
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCl9nxGSznyla5O4pKjdjP2bLEyNmr5240",
+  authDomain: "daily-do-9731e.firebaseapp.com",
+  projectId: "daily-do-9731e",
+  storageBucket: "daily-do-9731e.appspot.com",
+  messagingSenderId: "1093409243975",
+  appId: "1:1093409243975:web:585abf377d5e62de920262",
+  measurementId: "G-XWJCSBV0MB"
+};
+
+// Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+const analytics = getAnalytics(firebaseApp);
+const auth = getAuth(firebaseApp);
+console.log(auth);
+const firestore = getFirestore(firebaseApp);
+
+const signIn = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+};
+
+const signOutUser = () => {
+    signOut(auth);
+}
+
+onAuthStateChanged( (auth), user => {
+    if (user != null){
+        regenerateFromDB();
+        // console.log(auth.currentUser.uid)
+        // console.log('logged in!')
+    } else {
+        if (_storageAvailable('localStorage')) {
+            retrieveLocal();
+            manageDisplayArea.regenerateDisplayArea(projectLibrary);
+            manageSideBar.regenerateProjectArea(projectLibrary);
+        } else {
+              ///////////////////////////////////////////////////////
+            // Too bad, no localStorage for us
+        }
+        // console.log('no user')
+    }
+});
+
+const regenerateFromDB = async () => {
+    projectLibrary.projects = [];
+    const querySnapshot = await getDocs(collection(firestore, auth.currentUser.uid));
+    querySnapshot.forEach((doc) => {
+        if (projectLibrary.isInProjectLibrary(doc.data().projectTitle)){
+            projectLibrary.getProject(doc.data().projectTitle).addItem(docToItem(doc))
+
+        } else if (!projectLibrary.isInProjectLibrary(doc.data().projectTitle)){
+            const newProject = new Project(doc.data().projectTitle);
+            newProject.addItem(docToItem(doc));
+            projectLibrary.addProject(newProject);
+        }
+        clearDisplayArea();
+        manageDisplayArea.regenerateDisplayArea(projectLibrary);
+    })
+}
+
+const getItemRef = async (item) => {
+    console.log(item.ID)
+    const itemQuery = await query(
+        collection(firestore, `${auth.currentUser.uid}`),
+        where('ID', '==', `${item.ID}`)
+    );
+    const querySnapshot = await getDocs(itemQuery);
+    const itemPath = `${querySnapshot.docs[0].ref.path}`;
+    const itemRef = await doc(firestore, itemPath);
+
+    return itemRef
+}
+
+const updateItemDoc = async (item, newData) => {
+    const itemRef = await getItemRef(item)
+    const updatedItem = await setDoc(itemRef, newData, {merge: true});
+}
+
+const uploadNewItem = async (item) => {
+    const docData = itemToDoc(item);
+    const newDoc = await addDoc(collection(firestore,`${auth.currentUser.uid}`), docData)
+}
+
+const deleteItem = async (item) => {
+    const itemRef = await getItemRef(item)
+    await deleteDoc(itemRef);
+}
+
+const deleteProject = async (project) => {
+    const projectQuery = await query(
+        collection(firestore, `${auth.currentUser.uid}`),
+        where('projectTitle', '==', `${project.title}`)
+    );
+    const projectQuerySnapshot = await getDocs(projectQuery);
+    const projectItems = projectQuerySnapshot.docs.forEach( async (item) => {        
+        const itemRef = await getItemRef(item.data())
+        await deleteDoc(itemRef);
+    });
+}
+
+const itemToDoc = (item) => {
+    return {
+        title: item.title,
+        projectTitle: item.projectTitle,
+        itemDueDate: item.itemDueDate,
+        itemDescription: item.itemDescription,
+        itemCompletion: item.itemCompletion,
+        ID: item.ID,
+    }
+}
+
+const docToItem = (doc) => {
+    return new Item(
+        doc.data().title,
+        doc.data().projectTitle,
+        doc.data().itemDueDate,
+        doc.data().itemDescription,
+        doc.data().itemCompletion,
+        doc.data().ID,
+    )
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // local storage 
 
 const saveLocal = () => {
     localStorage.setItem('projectLibrary', JSON.stringify(projectLibrary.projects));
-    console.log(localStorage)
 }
 
 const retrieveLocal = () => {
 
     const projects = JSON.parse(localStorage.getItem('projectLibrary'))
     if (projects) {
-        //library.books = books.map((book) => JSONToBook(book))
         projectLibrary.projects = projects.map((project) => reconstructProject(project));
-        // reconstructProjectLibrary(projectLibrary);
     } else {
       projectLibrary.projects = []
     }
 
     console.log(projectLibrary)
-}
-
-// const reconstructProjectLibrary = (projects) => {
-//     for (let project of projects){
-//         const newProject = new Project (project.title);
-//         for (let item of project.items){
-//             const newItem = new Item (item.title, item.projectTitle, item.itemDueDate, item.itemDescription,item.itemCompletion)
-//             newProject.addItem(newItem)
-//         }
-//     }
-// }
+} 
 
 const reconstructProject = (project) => {
     const newProject = new Project(project.title);
@@ -41,18 +167,6 @@ const reconstructProject = (project) => {
 
 const reconstructItem = (item) => {
     return new Item (item.title, item.projectTitle, item.itemDueDate, item.itemDescription, item.itemCompletion, item.ID)
-}
-
-const checkStorage = () => {
-    if (_storageAvailable('localStorage')) {
-        // Yippee! We can use localStorage awesomeness
-        retrieveLocal();
-        manageDisplayArea.regenerateDisplayArea(projectLibrary);
-        manageSideBar.regenerateProjectArea(projectLibrary);
-      }
-      else {
-        // Too bad, no localStorage for us
-    }
 }
 
 const _storageAvailable = (type)=>  {
@@ -80,6 +194,6 @@ const _storageAvailable = (type)=>  {
     }
 }
 
-// cloud storage 
 
-export {saveLocal, retrieveLocal, checkStorage}
+// export {saveLocal, retrieveLocal, checkStorage, signIn}
+export {saveLocal, retrieveLocal, signIn, signOutUser, auth, updateItemDoc, deleteItem, deleteProject, uploadNewItem}

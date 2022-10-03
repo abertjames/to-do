@@ -49,13 +49,10 @@ header {
     grid-column: 1/end;
 }
 
-.signInButton {
-
+.header button {
+    padding: var(--padding);
 }
 
-.signInModal {
-
-}
 
 .sideBar {
     display: flex;
@@ -92,8 +89,9 @@ button {
     /* grid-auto-flow: row; */
     grid-template-columns: 1fr 1fr 1fr;
 
+    min-height: 80vh;
     height: fit-content;
-    max-height: 78vh;
+    /* max-height: 78vh; */
 
     grid-template-rows: max-content;
     row-gap: var(--gap);

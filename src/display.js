@@ -1,6 +1,7 @@
 import {projectLibrary} from "./input";
 import {manageSideBar} from "./sideBar";
 import { saveLocal } from "./storage";
+import { auth, updateItemDoc, deleteProject, deleteItem } from "./storage";
 
 const createDisplayArea = () => {
     const displayArea = document.createElement('div');
@@ -76,13 +77,8 @@ const manageDisplayArea = (() => {
         headerDiv.classList.add('headerDiv');
 
         headerDiv.appendChild(_createTitle(project));
-
-        /// might want to remove this but it is nice to have it 
         headerDiv.appendChild(_createEditIcon(project));
-        ///
-
         headerDiv.appendChild(_createTrashIcon(project, false));
-    
         projectTile.appendChild(headerDiv);
     
         return projectTile
@@ -133,9 +129,6 @@ const manageVerboseProject = (() => {
     
     
     const createVerboseItem = (item) => {    
-        // could take in two variables, one for verbose and 
-        // one for date window and then with the right conditions i would 
-        // not need two item functions 
         const verboseItem = document.createElement('div');
         verboseItem.classList.add('verboseItemDiv');
         verboseItem.setAttribute('id', `${item.ID}`);
@@ -254,39 +247,42 @@ const _createCheckIcon = (item) => {
         checkboxIcon.src = "./icons/checkbox-outline.svg";
     }
 
-    checkboxIcon.addEventListener('click', (e) => {
+    checkboxIcon.addEventListener('click', async (e) => {
         const itemID = e.target.id.split('/').pop()
         const item = projectLibrary.getItem(itemID);
         const img = e.composedPath()[0];
         _toggleComplete(item, img);
-        saveLocal();
     });
     return checkboxIcon
 }
-
-const _toggleComplete = (item, img) => {
+///////////////////////////////////////////////////
+const _toggleComplete = async (item, img) => {
     const itemDiv = document.getElementById(item.ID);
     if (!item.itemCompletion){
         itemDiv.classList.add('completed');
         img.src = "./icons/checkbox-outline.svg";
     } else if (item.itemCompletion) {
         itemDiv.classList.remove('completed');
-        img.src =  './dist/icons/checkbox-blank-outline.svg';
+        img.src = './icons/checkbox-blank-outline.svg';
     }
     item.itemCompletion = !item.itemCompletion;
+    if (auth.currentUser){
+        await updateItemDoc(item, {itemCompletion: item.itemCompletion});
+    } else {
+        saveLocal();
+    }
 }
 
-const _createTrashIcon = (obj, verbose, dateWindow) => {
+const _createTrashIcon = (obj) => {
     const trashIcon = document.createElement('img');
     trashIcon.src = './icons/trash-can-outline.svg';
     trashIcon.classList.add('icon');
     trashIcon.id = "trash/" + `${obj.ID}`
 
     const type = obj.type;
-    const verb = verbose;
 
     if (type == 'item'){
-        trashIcon.addEventListener('click', (e) => {
+        trashIcon.addEventListener('click', async (e) => {
             const itemDiv = document.getElementById(e.target.id.split('/').pop());
             const item = projectLibrary.getItem(e.target.id.split('/').pop());
             const project = projectLibrary.getProject(item.projectTitle);
@@ -298,15 +294,23 @@ const _createTrashIcon = (obj, verbose, dateWindow) => {
             }
             itemDiv.remove()
             project.removeItem(item.ID);
-            saveLocal();
+            if (auth.currentUser){
+                await deleteItem(item);
+            } else {
+                saveLocal();
+            }
         });
     } else if (type == 'project'){
-        trashIcon.addEventListener('click', (e) => {
+        trashIcon.addEventListener('click', async (e) => {
             const project = projectLibrary.getProject(e.target.id.split('/').pop());
             projectLibrary.removeProject(project.title);
             manageSideBar.regenerateProjectArea(projectLibrary);
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
-            saveLocal();
+            if (auth.currentUser){
+                await deleteProject(project);
+            } else {
+                saveLocal();
+            }
         })
     }
     return trashIcon
@@ -338,7 +342,6 @@ const _createCloseIcon = () => {
     closeIcon.src = "./icons/close.svg";
     closeIcon.classList.add('icon');
     closeIcon.addEventListener('click', () =>{
-        //probably will need to accept a type in here 
         manageDisplayArea.regenerateDisplayArea(projectLibrary);
     })
     return closeIcon
@@ -387,7 +390,7 @@ const _createTitle = (obj) => {
     });
 
     if (obj.type == 'item'){
-        title.onchange = (e) => {
+        title.onchange = async (e) => {
             if (e.target.value == '') {
                 e.target.value = e.target.id.split('/').pop();
             } else {
@@ -396,11 +399,16 @@ const _createTitle = (obj) => {
                 const item = projectLibrary.getItem(itemID);
                 item.title = newTitle;
                 e.target.id = newTitle;
-                saveLocal();
+                
+                if (auth.currentUser) {
+                    await updateItemDoc(item, {title: item.title});
+                } else {
+                    saveLocal();
+                }
             } 
         };
     } else if (obj.type == 'project'){
-        title.onchange = (e) => {
+        title.onchange = async (e) => {
             if (e.target.value == '' || projectLibrary.isInProjectLibrary(e.target.value.toUpperCase())) {
                 e.target.value = e.composedPath()[2].id;
             } else {
@@ -408,7 +416,6 @@ const _createTitle = (obj) => {
                 const project = projectLibrary.getProject(e.composedPath()[2].id);
                 _updateProject(newTitle, project);
                 manageSideBar.regenerateProjectArea(projectLibrary);
-                saveLocal();
             } 
         };
     }
@@ -431,11 +438,16 @@ const _createDueDate = (item) => {
         e.target.readOnly = true;
     });
 
-    dueDate.onchange = (e) => {
+    dueDate.onchange = async (e) => {
         const itemID = e.target.id.split('/').pop()
         const item = projectLibrary.getItem(itemID);
         item.itemDueDate = e.target.value;
-        saveLocal();
+
+        if (auth.currentUser) {
+            await updateItemDoc(item, {itemDescription: item.itemDueDate});
+        } else {
+            saveLocal();
+        }
     };
 
     return dueDate
@@ -455,11 +467,16 @@ const _createDescription = (item) => {
         e.target.readOnly = true;
     });
 
-    itemDescription.onchange = (e) => {
+    itemDescription.onchange = async (e) => {
         const itemID = e.target.id.split('/').pop()
         const item = projectLibrary.getItem(itemID);
         item.itemDescription = e.target.value;
-        saveLocal();
+
+        if (auth.currentUser) {
+            await updateItemDoc(item, {itemDescription: item.itemDescription})
+        } else {
+            saveLocal();
+        }
     };
 
     itemDescription.classList.add('itemDescription');
@@ -471,38 +488,52 @@ const _createDescription = (item) => {
 
 
 
-const _updateProject = (newTitle, project) => {
+const _updateProject = async (newTitle, project) => {
     for (let item of project.items){
         _updateItem(newTitle, item, project);
     }
     const projectDisp = document.getElementById(project.title);
     project.title = newTitle;
     projectDisp.id = project.title;
-    saveLocal();
+    if (!auth.currentUser){
+        saveLocal()
+    }
 };
 
-const _updateItem = (newTitle, item, project) => {
+const _updateItem = async (newTitle, item, project) => {
     const itemDiv = document.getElementById(item.ID);
     const checkBox = document.getElementById('checkBox/'+`${item.ID}`);
     const trashIcon = document.getElementById('trash/'+`${item.ID}`);
+    const titleInput = document.getElementById('title/'+`${item.ID}`);
+
     if (!!document.getElementById('edit/'+`${item.ID}`)){
-        console.log('hi')
         const editIcon = document.getElementById('edit/'+`${item.ID}`);
 
-        item.ID = `${newTitle}-` + `${project.giveID()}`;
+        const newID = `${newTitle}-` + `${project.giveID()}`;
+        if (auth.currentUser){
+            await updateItemDoc(item, {ID: newID})
+        }
+        item.ID = newID
         itemDiv.id = item.ID;
         item.projectTitle = newTitle;
-    
+        
+        titleInput.id = 'title/'+`${item.ID}`;
         checkBox.id = 'checkBox/'+`${item.ID}`;
         trashIcon.id = 'trash/'+`${item.ID}`;
         editIcon.id = 'edit/'+`${item.ID}`;
     } else {
-        item.ID = `${newTitle}-` + `${project.giveID()}`;
+        const newID = `${newTitle}-` + `${project.giveID()}`;
+        if (auth.currentUser){
+            await updateItemDoc(item, {ID: newID})
+        }
+        item.ID = newID
         itemDiv.id = item.ID;
         item.projectTitle = newTitle;
+
+        titleInput.id = 'title/'+`${item.ID}`;
         checkBox.id = 'checkBox/'+`${item.ID}`;
         trashIcon.id = 'trash/'+`${item.ID}`;
     }
 };
 
-export {createDisplayArea, manageVerboseProject, manageDisplayArea, manageDateWindow}
+export {createDisplayArea, manageVerboseProject, manageDisplayArea, manageDateWindow, clearDisplayArea}
