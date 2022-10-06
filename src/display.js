@@ -258,11 +258,13 @@ const _createCheckIcon = (item) => {
 ///////////////////////////////////////////////////
 const _toggleComplete = async (item, img) => {
     let ID;
+
     if (!!document.getElementById('modal')){
         ID = "verbose-" + item.ID;
     } else {
         ID = item.ID
     }
+    
     const itemDiv = document.getElementById(ID);
 
     if (!item.itemCompletion){
