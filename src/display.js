@@ -216,20 +216,20 @@ const manageDateWindow = (() => {
 const _openItemWindow = (item) => {
     const displayArea = document.getElementById('displayArea');
     const itemModal = document.createElement('div');
-    itemModal.classList.add('modal');
+    itemModal.id = 'modal'
     window.onclick = (e) => {
         if (e.target == itemModal) {
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
         }
     }
-    itemModal.appendChild(manageVerboseProject.createVerboseItem(item));
+    const verboseItem = manageVerboseProject.createVerboseItem(item);
+    verboseItem.id = "verbose-" + verboseItem.id
+    // itemModal.appendChild(manageVerboseProject.createVerboseItem(item));
+    itemModal.appendChild(verboseItem);
     displayArea.appendChild(itemModal);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +257,14 @@ const _createCheckIcon = (item) => {
 }
 ///////////////////////////////////////////////////
 const _toggleComplete = async (item, img) => {
-    const itemDiv = document.getElementById(item.ID);
+    let ID;
+    if (!!document.getElementById('modal')){
+        ID = "verbose-" + item.ID;
+    } else {
+        ID = item.ID
+    }
+    const itemDiv = document.getElementById(ID);
+
     if (!item.itemCompletion){
         itemDiv.classList.add('completed');
         img.src = "./icons/checkbox-outline.svg";
@@ -409,7 +416,7 @@ const _createTitle = (obj) => {
         };
     } else if (obj.type == 'project'){
         title.onchange = async (e) => {
-            if (e.target.value == '' || projectLibrary.isInProjectLibrary(e.target.value.toUpperCase())) {
+            if (e.target.value == '' || e.target.value.includes("/") || projectLibrary.isInProjectLibrary(e.target.value.toUpperCase())) {
                 e.target.value = e.composedPath()[2].id;
             } else {
                 const newTitle = e.target.value.toUpperCase();
@@ -486,6 +493,10 @@ const _createDescription = (item) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////// update functions ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 const _updateProject = async (newTitle, project) => {

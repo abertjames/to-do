@@ -3,26 +3,40 @@ import { signIn, signOutUser } from "./storage";
 const createHeader = () => {
     const headerBar = document.createElement('div');
     headerBar.classList.add('header');
+    headerBar.id = 'headerBar'
 
     const webHeader = document.createElement('h1');
     webHeader.textContent = "Daily Do's"
 
-    const signInButton = document.createElement('button');
-    signInButton.classList.add('signInButton');
-    signInButton.textContent = 'Sign In'
-    signInButton.onclick = signIn;
-
-    const signOutButton = document.createElement('button');
-    signOutButton.textContent = 'sign out';
-    signOutButton.onclick = signOutUser;
-
     headerBar.appendChild(webHeader);
-    headerBar.appendChild(signInButton);
-    headerBar.appendChild(signOutButton);    
-
-    // headerBar.textContent = "To-Do";
     
     return headerBar
 }
 
-export {createHeader}
+const createSignInButton = () => {
+    const headerBar = document.getElementById('headerBar');
+    if (!!document.getElementById('signOutButton')){
+        headerBar.removeChild(document.getElementById('signOutButton'))
+    }
+    const signInButton = document.createElement('button');
+    signInButton.classList.add('signInButton');
+    signInButton.textContent = 'Sign In';
+    signInButton.id = 'signInButton';
+    signInButton.onclick = signIn;
+    headerBar.appendChild(signInButton);
+}
+
+const createSignOutButton = () => {
+    const headerBar = document.getElementById('headerBar');
+    if (!!document.getElementById('signInButton')){
+        headerBar.removeChild(document.getElementById('signInButton'))
+    }
+    const signOutButton = document.createElement('button');
+    signOutButton.classList.add('signOutButton');
+    signOutButton.textContent = 'Sign out';
+    signOutButton.id = 'signOutButton';
+    signOutButton.onclick = signOutUser;
+    headerBar.appendChild(signOutButton);
+}
+
+export {createHeader, createSignInButton, createSignOutButton}

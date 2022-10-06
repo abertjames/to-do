@@ -8,18 +8,21 @@ const manageSideBar = (() => {
     
         const homeButton = document.createElement('button');
         homeButton.textContent = 'Home';
+        homeButton.classList.add('button');
         homeButton.addEventListener('click', () => {
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
         });
     
         const todayButton = document.createElement('button');
         todayButton.textContent = 'Today';
+        todayButton.classList.add('button');
         todayButton.addEventListener('click', () => {
             manageDateWindow.openDateWindow(0);
         })
 
         const weekButton = document.createElement('button');
         weekButton.textContent = 'This Week';
+        weekButton.classList.add('button');
         weekButton.addEventListener('click', () => {
             manageDateWindow.openDateWindow(7);
         });
@@ -38,7 +41,8 @@ const manageSideBar = (() => {
         const projectArea = document.createElement('div');
         projectArea.setAttribute('id','projectArea');
     
-        const projectHeading = document.createElement('span');
+        const projectHeading = document.createElement('h3');
+        projectHeading.classList.add('projectHeading')
         projectHeading.textContent = 'Projects';
     
         projectAreaContainer.appendChild(projectHeading);
@@ -66,14 +70,13 @@ const manageSideBar = (() => {
         const newProjectButton = document.createElement('button');
         newProjectButton.setAttribute('id',`${project.title}`+'-button');
         newProjectButton.textContent = project.title;
-    
+        newProjectButton.classList.add('button');
+
         newProjectButton.addEventListener('click', (e) => {
             const project = projectLibrary.getProject(e.target.id.slice(0,-7));
             manageVerboseProject.openVerboseProject(project);
         });
         projectArea.appendChild(newProjectButton);
-        // console.log(newProjectButton)
-        // return (newProjectButton)
     }
     
     // const removeProjectButton = (project) => {
@@ -84,8 +87,4 @@ const manageSideBar = (() => {
     return {createSideBar, regenerateProjectArea}
 })();
 
-
-//need a function to rename and re ID these 
 export {manageSideBar}
-
-// export {createSideBar, addProjectButton, removeProjectButton}

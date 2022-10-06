@@ -1,6 +1,7 @@
 import { projectLibrary, Project, Item } from "./input"
 import { manageDisplayArea, clearDisplayArea } from "./display";
 import { manageSideBar } from "./sideBar";
+import { createSignInButton, createSignOutButton } from "./header"
 
 // cloud storage 
 
@@ -43,14 +44,16 @@ const signOutUser = () => {
 
 onAuthStateChanged( (auth), user => {
     if (user != null){
-        regenerateFromDB();
+        _regenerateFromDB();
+        createSignOutButton();
         // console.log(auth.currentUser.uid)
         // console.log('logged in!')
     } else {
         if (_storageAvailable('localStorage')) {
-            retrieveLocal();
+            _retrieveLocal();
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
             manageSideBar.regenerateProjectArea(projectLibrary);
+            createSignInButton();
         } else {
               ///////////////////////////////////////////////////////
             // Too bad, no localStorage for us
@@ -59,25 +62,26 @@ onAuthStateChanged( (auth), user => {
     }
 });
 
-const regenerateFromDB = async () => {
+const _regenerateFromDB = async () => {
     projectLibrary.projects = [];
     const querySnapshot = await getDocs(collection(firestore, auth.currentUser.uid));
     querySnapshot.forEach((doc) => {
         if (projectLibrary.isInProjectLibrary(doc.data().projectTitle)){
-            projectLibrary.getProject(doc.data().projectTitle).addItem(docToItem(doc))
+            projectLibrary.getProject(doc.data().projectTitle).addItem(_docToItem(doc))
 
         } else if (!projectLibrary.isInProjectLibrary(doc.data().projectTitle)){
             const newProject = new Project(doc.data().projectTitle);
-            newProject.addItem(docToItem(doc));
+            newProject.addItem(_docToItem(doc));
             projectLibrary.addProject(newProject);
         }
         clearDisplayArea();
+        manageSideBar.regenerateProjectArea(projectLibrary);
         manageDisplayArea.regenerateDisplayArea(projectLibrary);
     })
 }
 
-const getItemRef = async (item) => {
-    console.log(item.ID)
+const _getItemRef = async (item) => {
+    // console.log(item.ID)
     const itemQuery = await query(
         collection(firestore, `${auth.currentUser.uid}`),
         where('ID', '==', `${item.ID}`)
@@ -90,17 +94,17 @@ const getItemRef = async (item) => {
 }
 
 const updateItemDoc = async (item, newData) => {
-    const itemRef = await getItemRef(item)
+    const itemRef = await _getItemRef(item)
     const updatedItem = await setDoc(itemRef, newData, {merge: true});
 }
 
 const uploadNewItem = async (item) => {
-    const docData = itemToDoc(item);
+    const docData = _itemToDoc(item);
     const newDoc = await addDoc(collection(firestore,`${auth.currentUser.uid}`), docData)
 }
 
 const deleteItem = async (item) => {
-    const itemRef = await getItemRef(item)
+    const itemRef = await _getItemRef(item)
     await deleteDoc(itemRef);
 }
 
@@ -111,12 +115,12 @@ const deleteProject = async (project) => {
     );
     const projectQuerySnapshot = await getDocs(projectQuery);
     const projectItems = projectQuerySnapshot.docs.forEach( async (item) => {        
-        const itemRef = await getItemRef(item.data())
+        const itemRef = await _getItemRef(item.data())
         await deleteDoc(itemRef);
     });
 }
 
-const itemToDoc = (item) => {
+const _itemToDoc = (item) => {
     return {
         title: item.title,
         projectTitle: item.projectTitle,
@@ -127,7 +131,7 @@ const itemToDoc = (item) => {
     }
 }
 
-const docToItem = (doc) => {
+const _docToItem = (doc) => {
     return new Item(
         doc.data().title,
         doc.data().projectTitle,
@@ -147,11 +151,11 @@ const saveLocal = () => {
     localStorage.setItem('projectLibrary', JSON.stringify(projectLibrary.projects));
 }
 
-const retrieveLocal = () => {
+const _retrieveLocal = () => {
 
     const projects = JSON.parse(localStorage.getItem('projectLibrary'))
     if (projects) {
-        projectLibrary.projects = projects.map((project) => reconstructProject(project));
+        projectLibrary.projects = projects.map((project) => _reconstructProject(project));
     } else {
       projectLibrary.projects = []
     }
@@ -159,13 +163,13 @@ const retrieveLocal = () => {
     console.log(projectLibrary)
 } 
 
-const reconstructProject = (project) => {
+const _reconstructProject = (project) => {
     const newProject = new Project(project.title);
-    newProject.items = project.items.map((item) => reconstructItem(item))
+    newProject.items = project.items.map((item) => _reconstructItem(item))
     return newProject
 }
 
-const reconstructItem = (item) => {
+const _reconstructItem = (item) => {
     return new Item (item.title, item.projectTitle, item.itemDueDate, item.itemDescription, item.itemCompletion, item.ID)
 }
 
@@ -194,6 +198,4 @@ const _storageAvailable = (type)=>  {
     }
 }
 
-
-// export {saveLocal, retrieveLocal, checkStorage, signIn}
-export {saveLocal, retrieveLocal, signIn, signOutUser, auth, updateItemDoc, deleteItem, deleteProject, uploadNewItem}
+export {saveLocal, signIn, signOutUser, auth, updateItemDoc, deleteItem, deleteProject, uploadNewItem}

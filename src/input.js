@@ -115,7 +115,7 @@ const createInput = (() => {
         const description = document.createElement('textarea');
         description.id = 'itemDescription';
         description.cols = '30';
-        description.rows = '10';
+        description.rows = '20';
         description.placeholder = 'Description';
     
         return description
@@ -123,6 +123,7 @@ const createInput = (() => {
     
     const _createAddButton = () => {
         const addButton = document.createElement('button');
+        addButton.classList.add('button');
         addButton.textContent = 'Add Item';
         addButton.type = 'submit';
     
@@ -145,8 +146,11 @@ const createInput = (() => {
         e.preventDefault();
     
         const newItem = _createItemFromInput();
+
     
-        if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
+        if (newItem.projectTitle.includes("/")){
+            return
+        } else if (projectLibrary.isInProjectLibrary(newItem.projectTitle)){
             newItem.ID = `${newItem.projectTitle}-`+`${projectLibrary.getProject(newItem.projectTitle).giveID()}`;
             projectLibrary.getProject(newItem.projectTitle).addItem(newItem);
         } else if (!projectLibrary.isInProjectLibrary(newItem.projectTitle)){
@@ -167,6 +171,7 @@ const createInput = (() => {
     
     const _createClearButton = () => {
         const clearButton = document.createElement('button');
+        clearButton.classList.add('button');
         clearButton.textContent = 'Clear';
         clearButton.addEventListener('click', (e) => {
             e.preventDefault();
