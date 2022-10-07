@@ -179,7 +179,7 @@ const manageDateWindow = (() => {
 
         for (let project of projectLibrary.projects){
             for (let item of project.items){
-                if (_getDateDifference(new Date(item.itemDueDate))<=target){
+                if (_getDateDifference(new Date(item.itemDueDate))<=target && 0<=_getDateDifference(new Date(item.itemDueDate)) ){
                     dateWindow.appendChild(manageVerboseProject.createVerboseItem(item));
                 }
             }
@@ -264,7 +264,7 @@ const _toggleComplete = async (item, img) => {
     } else {
         ID = item.ID
     }
-    
+
     const itemDiv = document.getElementById(ID);
 
     if (!item.itemCompletion){
