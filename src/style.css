@@ -31,6 +31,9 @@ input, button, textarea, body {
 
     --light-green: #9fff9c;
     --light-red: #ff9c9c;
+    --light-gray: #e6e3e3;
+    --light-blue: #add8e6;
+    --off-white: whitesmoke;
 }
 
 #container {
@@ -58,7 +61,7 @@ h1 {
     grid-column: 1/end;
     display: flex;
     padding: var(--padding);
-    /* flex-direction: column; */
+    background-color: var(--light-blue);
 }
 
 .signInButton {
@@ -72,8 +75,8 @@ h1 {
 .signInButton, .signOutButton {
     border: var(--blackBorder);
     border-radius: var(--borderRadius);
-    padding: 1rem 2rem 1rem 2rem;
-    width: 10rem;
+    /* padding: 1rem 2rem 1rem 2rem; */
+    width: 8rem;
     height: 4rem;
     align-self: center;
     font-size: 1.1rem;
@@ -91,6 +94,7 @@ h1 {
     padding: var(--padding);
     max-width: 20vw;
     border: var(--blackBorder);
+    background-color: var(--light-gray)
 }
 
 #projectArea {
@@ -132,6 +136,7 @@ h1 {
 
     border-top: var(--blackBorder);
     border-bottom: var(--blackBorder);
+    background-color: var(--off-white);
 }
 
 ::-webkit-scrollbar {
@@ -156,6 +161,9 @@ h1 {
     border: var(--blackBorder);
     border-radius: var(--borderRadius);
     box-shadow: var(--boxShadow);
+
+    background-color: white;
+
 }
 
 .headerDiv {
@@ -191,6 +199,8 @@ h1 {
     border: 2px solid black;
     border-radius: var(--borderRadius);
     box-shadow: var(--boxShadow);
+    background-color: white;
+
 }
 
 .verbose {
@@ -330,6 +340,7 @@ h1 {
     justify-content: center;
     padding: var(--padding);
     border: var(--blackBorder);
+    background-color: var(--light-gray);
 }
 
 .newItemForm {
@@ -341,6 +352,7 @@ h1 {
     border-radius: var(--borderRadius);
     /* border: var(--blackBorder); */
     border: 3px solid black;
+    background-color: var(--off-white);
 }
 
 textarea, input {
