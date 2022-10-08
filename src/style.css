@@ -129,7 +129,7 @@ h1 {
 
     grid-template-rows: max-content;
     row-gap: var(--gap);
-    overflow-y: auto;
+    overflow: auto;
     position: relative;
     max-width: 60vw;
 
@@ -332,6 +332,8 @@ h1 {
     color: gray;
     text-decoration: line-through;
 }
+
+
 
 /* /////// input style ///////// */
 .newItemBar {

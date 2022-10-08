@@ -215,11 +215,13 @@ const manageDateWindow = (() => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const _openItemWindow = (item) => {
     const displayArea = document.getElementById('displayArea');
+    displayArea.style.overflow ='hidden';
     const itemModal = document.createElement('div');
-    itemModal.id = 'modal'
+    itemModal.id = 'modal';
     window.onclick = (e) => {
         if (e.target == itemModal) {
             manageDisplayArea.regenerateDisplayArea(projectLibrary);
+            displayArea.style.overflow = 'auto';
         }
     }
     const verboseItem = manageVerboseProject.createVerboseItem(item);

@@ -9,6 +9,7 @@
 
 input, button, textarea, body {
     /* font-family: 'Times New Roman', Times, serif; */
+
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 1rem;
 }
@@ -129,7 +130,7 @@ h1 {
 
     grid-template-rows: max-content;
     row-gap: var(--gap);
-    overflow-y: auto;
+    overflow: auto;
     position: relative;
     max-width: 60vw;
 
